@@ -16,39 +16,45 @@ import lombok.extern.log4j.Log4j;
 @ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
 public class BoardServiceTests {
 	@Autowired
-	private BoardService service;
+	private BoardService bservice;
 	
-	@Test
-	public void testGetList() {
-		List<BoardVO> list = service.getList();
-		//service.getList().forEach(vo-> log.info(vo));		
-		
-		
-		for (BoardVO vo : list) {
-			log.info(vo);
-		}
-	}
-	
+//	@Test
+//	public void testGetAllList() {
+//		List<BoardVO> list = bservice.getList();
+//		for (BoardVO boardVO : list) {
+//			log.info("testGetAllList::"+boardVO);
+//		}
+//	}
+//	@Test
+//	public void testGetOne() {
+//		BoardVO vo = bservice.get(2);
+//		log.info("testGetOne::"+ vo);
+//	}
 //	@Test
 //	public void testRegister() {
 //		BoardVO vo = new BoardVO();
-//		vo.setTitle("title");
-//		vo.setContent("content");
-//		vo.setWriter("writer");
-//		service.register(vo);
+//		vo.setTitle("Test2");
+//		vo.setContent("Test Content2");
+//		vo.setWriter("Tester02");
+//		log.info("testRegister::"+vo);
+//		bservice.register(vo);
 //	}
 //	@Test
-//	public void get(int bno) {
-//		service.getList();
+//	public void testRemove() {
+//		log.info("testRemove:: "+ bservice.remove(5));
+//		//testRemove::true
+//		//testRemove::false
 //	}
-//	
-//	@Test
-//	public void remove(){
-//		
-//		service.delete(bno)== 1;
-//		}
-//	@Test
-//	public void 
-//	public 
-	
+	@Test
+	public void testModify() {
+		BoardVO vo = new BoardVO();
+		vo.setBno(3);
+		vo.setContent("Modify Content");
+		vo.setTitle("Modify Title");
+		vo.setWriter("Modify Writer");
+		log.info(vo);
+		log.info("testModify:: " + bservice.modify(vo));
+		//testModify::true
+		//testModify::false
+	}
 }
