@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop-reference-model>
+<aop-project name="chapter04_MVC"/>
+<aop-project name="chapter01_begin"/>
+<aop-project name="chapter02_DI"/>
+<aop-project name="chapter03_MVC"/>
+</aop-reference-model>

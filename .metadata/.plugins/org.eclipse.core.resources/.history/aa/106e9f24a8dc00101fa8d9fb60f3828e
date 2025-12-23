@@ -1,0 +1,11 @@
+package org.joonzis.DI_1;
+
+public class TVUser {
+	LgTV ltv = new LgTV();
+	ltv.powerOn();
+	ltv.volumeUp();
+	ltv.volumeUp();
+	ltv.volumeUp();
+	
+	syso
+}

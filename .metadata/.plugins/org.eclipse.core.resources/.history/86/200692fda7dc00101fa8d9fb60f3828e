@@ -1,0 +1,19 @@
+package org.joonzis.DI_1;
+
+public class LgTV {
+	ublic LgTV() {
+		System.out.println("LgTv °´Ã¼ »ý¼º");
+	}
+	public void powerOn() {
+		System.out.println("LgTv Àü¿ø ÄÑÁü");
+	}
+	public void powerOff() {
+		System.out.println("LgTv Àü¿ø ²¨Áü");
+	}
+	public void volumeUp() {
+		System.out.println("LgTv º¼·ý ¾÷");
+	}
+	public void volumeDown() {
+		System.out.println("LgTv º¼·ý ´Ù¿î");
+	}
+}

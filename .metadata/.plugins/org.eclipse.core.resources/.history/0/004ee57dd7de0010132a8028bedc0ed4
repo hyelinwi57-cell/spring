@@ -1,0 +1,23 @@
+package org.joonzis.DI_5_component;
+
+public class LgTV implements TV {
+	public LgTV() {
+		System.out.println("LgTv °´Ã¼ »ý¼º");
+	}
+	@Override
+	public void powerOn() {
+		System.out.println("LgTv Àü¿ø ÄÑÁü");
+	}
+	@Override
+	public void powerOff() {
+		System.out.println("LgTv Àü¿ø ²¨Áü");
+	}
+	@Override
+	public void volumeUp() {
+		System.out.println("LgTv º¼·ý ¾÷");
+	}
+	@Override
+	public void volumeDown() {
+		System.out.println("LgTv º¼·ý ´Ù¿î");
+	}
+}

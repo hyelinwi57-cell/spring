@@ -1,0 +1,18 @@
+package org.joonzis.DI_2;
+
+public class TVUser {
+	public static void main(String[] args) {
+			LgTV ltv = new LgTV();
+			ltv.powerOn();
+			ltv.volumeUp();
+			ltv.volumeDown();
+			ltv.powerOff();
+			
+			//------------------
+			SamsungTV stv = new SamsungTV();
+			stv.powerOn();
+			stv.volumeUp();
+			stv.volumeDown();
+			stv.powerOff();
+		}
+}
