@@ -2,18 +2,18 @@ package org.joonzis.DI_1;
 
 public class SamsungTV {
 	public SamsungTV() {
-		System.out.println("SamsungTV °´Ã¼ »ı¼º");
+		System.out.println("SamsungTV ê°ì²´ ìƒì„±");
 	}
 	public void powerOn() {
-		System.out.println("SamsungTV Àü¿ø ÄÑÁü");
+		System.out.println("SamsungTV ì „ì› ì¼œì§");
 	}
 	public void powerOff() {
-		System.out.println("SamsungTV Àü¿ø ²¨Áü");
+		System.out.println("SamsungTV ì „ì› êº¼ì§");
 	}
 	public void volumeUp() {
-		System.out.println("SamsungTV º¼·ı ¾÷");
+		System.out.println("SamsungTV ë³¼ë¥¨ ì—…");
 	}
 	public void volumeDown() {
-		System.out.println("SamsungTV º¼·ı ´Ù¿î");
+		System.out.println("SamsungTV ë³¼ë¥¨ ë‹¤ìš´");
 	}
 }

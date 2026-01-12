@@ -1,7 +1,0 @@
-package org.joozis.DI_4_annoConfig;
-/*
- * sts3 버전에서 사용 시 해당 프로젝트에 CG
- * */
-public class annoConfig {
-	
-}

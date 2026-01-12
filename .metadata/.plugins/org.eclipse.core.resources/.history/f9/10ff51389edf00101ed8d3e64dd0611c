@@ -1,5 +1,0 @@
-package org.joonzis.mapper;
-
-public interface BoardMapper {
-
-}

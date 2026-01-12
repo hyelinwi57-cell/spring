@@ -5,10 +5,11 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 
 public class TVUser {
 	public static void main(String[] args) {
-		// 1. spring ÄÁÅ×ÀÌ³Ê ±¸µ¿
+		// 1. spring ì»¨í…Œì´ë„ˆ êµ¬ë™
 		AbstractApplicationContext ctx = new GenericXmlApplicationContext("applicationContext3.xml");
 		
-		// 2. ÄÁÅ×ÀÌ³Ê·ÎºÎÅÍ ÇÊ¿äÇÑ °´Ã¼ »ı¼º
+		// 2. ì»¨í…Œì´ë„ˆë¡œë¶€í„° í•„ìš”í•œ ê°ì²´ ìƒì„±
+
 		
 		TV ltv = (LgTV)ctx.getBean("ltv");
 		TV ltv2 = (LgTV)ctx.getBean("ltv");
@@ -27,8 +28,8 @@ public class TVUser {
 		stv.volumeDown();
 		stv.powerOff();
 		
-		System.out.println(ltv == ltv2 ? "lg : °°À½" : "lg : ´Ù¸§");
-		System.out.println(stv == stv2 ? "s : °°À½" : "s : ´Ù¸§");
+		System.out.println(ltv == ltv2 ? "lg : ï¿½ï¿½ï¿½ï¿½" : "lg : ï¿½Ù¸ï¿½");
+		System.out.println(stv == stv2 ? "s : ï¿½ï¿½ï¿½ï¿½" : "s : ï¿½Ù¸ï¿½");
 		ctx.close();
 	}
 

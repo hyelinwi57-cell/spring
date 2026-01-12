@@ -2,22 +2,22 @@ package org.joonzis.DI_2;
 
 public class SamsungTV implements TV{
 	public SamsungTV() {
-		System.out.println("SamsungTV °´Ã¼ »ı¼º");
+		System.out.println("SamsungTV ê°ì²´ ìƒì„±");
 	}
 	@Override
 	public void powerOn() {
-		System.out.println("SamsungTV Àü¿ø ÄÑÁü");
+		System.out.println("SamsungTV ì „ì› ì¼œì§");
 	}
 	@Override
 	public void powerOff() {
-		System.out.println("SamsungTV Àü¿ø ²¨Áü");
+		System.out.println("SamsungTV ì „ì› êº¼ì§");
 	}
 	@Override
 	public void volumeUp() {
-		System.out.println("SamsungTV º¼·ı ¾÷");
+		System.out.println("SamsungTV ë³¼ë¥¨ ì—…");
 	}
 	@Override
 	public void volumeDown() {
-		System.out.println("SamsungTV º¼·ı ´Ù¿î");
+		System.out.println("SamsungTV ë³¼ë¥¨ ë‹¤ìš´");
 	}
 }

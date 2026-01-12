@@ -1,0 +1,20 @@
+create table tbl_attach(
+    uuid varchar2(200) not null,
+    uploadPath varchar2(200) not null,
+    fileName varchar2(200) not null,
+    bno number(10,0)
+);
+
+alter table tbl_attach add constraint pk_attach primary key (uuid);
+
+alter table tbl_attach add constraint fk_board_attach
+foreign key (bno) references tbl_board(bno);
+commit;
+
+select * from tbl_attach;
+
+delete from tbl_reply where bno = 1;
+
+SELECT seq_board.NEXTVAL FROM dual;
+
+

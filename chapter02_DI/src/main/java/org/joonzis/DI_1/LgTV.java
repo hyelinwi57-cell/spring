@@ -2,18 +2,18 @@ package org.joonzis.DI_1;
 
 public class LgTV {
 	public LgTV() {
-		System.out.println("LgTv °´Ã¼ »ı¼º");
+		System.out.println("LgTv ê°ì²´ ìƒì„±");
 	}
 	public void powerOn() {
-		System.out.println("LgTv Àü¿ø ÄÑÁü");
+		System.out.println("LgTv ì „ì› ì¼œì§");
 	}
 	public void powerOff() {
-		System.out.println("LgTv Àü¿ø ²¨Áü");
+		System.out.println("LgTv ì „ì› êº¼ì§");
 	}
 	public void volumeUp() {
-		System.out.println("LgTv º¼·ı ¾÷");
+		System.out.println("LgTv ë³¼ë¥¨ ì—…");
 	}
 	public void volumeDown() {
-		System.out.println("LgTv º¼·ı ´Ù¿î");
+		System.out.println("LgTv ë³¼ë¥¨ ë‹¤ìš´");
 	}
 }

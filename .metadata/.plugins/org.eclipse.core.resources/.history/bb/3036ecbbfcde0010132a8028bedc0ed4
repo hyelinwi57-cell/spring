@@ -1,9 +1,0 @@
-package org.joonzis.dto;
-
-public class StudentDTO {
-
-	public class StudentDTO{
-		private String name, dept;
-		private int gradeNo, classNo;
-	}
-}

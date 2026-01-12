@@ -4,31 +4,31 @@ import org.springframework.stereotype.Component;
 
 
 /*
- * @Component ¿Í @Configuration/@Bean Àº ±â´ÉÀÌ ºñ½Á
- * @Component´Â Å¬·¡½º ´ÜÀ§
- * @Configuration/@BeanÀº ¸Þ¼Òµå ´ÜÀ§
+ *  @Component ?€ @Configuration/@Bean ?€ ê¸°ëŠ¥??ë¹„ìŠ·
+ * @Component???´ëž˜???¨ìœ„
+ * @Configuration/@Bean?€ ë©”ì†Œ???¨ìœ„
  * 
  * 
  * */
 @Component("tv")
 public class LgTV implements TV {
 	public LgTV() {
-		System.out.println("LgTv °´Ã¼ »ý¼º");
+		System.out.println("LgTv ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½");
 	}
 	@Override
 	public void powerOn() {
-		System.out.println("LgTv Àü¿ø ÄÑÁü");
+		System.out.println("LgTv ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
 	}
 	@Override
 	public void powerOff() {
-		System.out.println("LgTv Àü¿ø ²¨Áü");
+		System.out.println("LgTv ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
 	}
 	@Override
 	public void volumeUp() {
-		System.out.println("LgTv º¼·ý ¾÷");
+		System.out.println("LgTv ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½");
 	}
 	@Override
 	public void volumeDown() {
-		System.out.println("LgTv º¼·ý ´Ù¿î");
+		System.out.println("LgTv ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¿ï¿½");
 	}
 }

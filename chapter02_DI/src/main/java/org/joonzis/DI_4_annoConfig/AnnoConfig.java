@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /*
- * sts3 ¹öÀü¿¡¼­ »ç¿ë ½Ã ÇØ´ç ÇÁ·ÎÁ§Æ®¿¡ CGLIB ¶óÀÌºê·¯¸® Ãß°¡
+ * sts3 ë²„ì „ì—ì„œ ì‚¬ìš© ì‹œ í•´ë‹¹ í”„ë¡œì íŠ¸ì— CGLIB ë¼ì´ë¸ŒëŸ¬ë¦¬ ì¶”ê°€
  * 
  * <dependency>
      <groupId>cglib</groupId>
@@ -15,18 +15,18 @@ import org.springframework.context.annotation.Configuration;
      <version>2.2.2</version>
    </dependency>
  * */
-@Configuration // <- applicationContext¿Í °°Àº ¿ªÇÒÀ» ÇÏ´Â ÀÚ¹Ù Å¬·¡½º
+@Configuration // <- applicationContextì™€ ê°™ì€ ì—­í• ì„ í•˜ëŠ” ìë°” í´ë˜ìŠ¤
 public class AnnoConfig {
-	@Bean // BeanÀ» ¸¸µå´Â ¸Ş¼­µå
+	@Bean // Beanì„ ë§Œë“œëŠ” ë©”ì„œë“œ
 	public Person human1() {
 		
 		Set<String> hobbies = new HashSet<String>();
-		hobbies.add("¿©Çà");
-		hobbies.add("µ¶¼­");
-		hobbies.add("³¬½Ã");
+		hobbies.add("ì—¬í–‰");
+		hobbies.add("ë…ì„œ");
+		hobbies.add("ë‚šì‹œ");
 		
 		Person person = new Person();
-		person.setName("±è¾¾");
+		person.setName("ê¹€ì”¨");
 		person.setAge(50);
 		person.setHobbies(hobbies);
 		
@@ -36,12 +36,12 @@ public class AnnoConfig {
 	public Person abc() {
 
 		Set<String> hobbies = new HashSet<String>();
-		hobbies.add("Àá");
-		hobbies.add("µå¶óÀÌºê");
-		hobbies.add("¿©Çà");
+		hobbies.add("ì ");
+		hobbies.add("ë“œë¼ì´ë¸Œ");
+		hobbies.add("ì—¬í–‰");
 		
 		Person person = new Person();
-		person.setName("¹Ú¾¾");
+		person.setName("ë°•ì”¨");
 		person.setAge(25);
 		person.setHobbies(hobbies);
 		
@@ -50,12 +50,12 @@ public class AnnoConfig {
 	@Bean
 	public PersonInfo pInfo(){
 		Set<String> hobbies = new HashSet<String>();
-		hobbies.add("°ÔÀÓ");
-		hobbies.add("¿µÈ­");
-		hobbies.add("¸ÀÁıÅ½¹æ");
+		hobbies.add("ê²Œì„");
+		hobbies.add("ì˜í™”");
+		hobbies.add("ë§›ì§‘íƒë°©");
 		
 		PersonInfo info = new PersonInfo();
-		info.setPerson(new Person("ÀÌ¾¾", 30, hobbies));
+		info.setPerson(new Person("ì´ì”¨", 30, hobbies));
 		return info;
 	}
 }

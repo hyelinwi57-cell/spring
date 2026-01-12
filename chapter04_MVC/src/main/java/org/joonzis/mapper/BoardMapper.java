@@ -2,17 +2,33 @@ package org.joonzis.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+import org.joonzis.domain.BoardAttachVO;
 import org.joonzis.domain.BoardVO;
+import org.joonzis.domain.Criteria;
 
 public interface BoardMapper {
-	//ÀüÃ¼ ¸®½ºÆ®
-	public List<BoardVO> getList();
-	//µ¥ÀÌÅÍ »ğÀÔ insert
+	//ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½Æ®
+	public List<BoardVO> getList(Criteria cri);
+	//
+	public int getTotal();
+	//ê²Œì‹œê¸€ ë²ˆí˜¸
+	public int getNextBno();
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ insert
 	public void insert(BoardVO vo);
-	//´ÜÀÏ µ¥ÀÌÅÍ(»ó¼¼ º¸±â) read
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½) read
 	public BoardVO read(int bno);
-	//µ¥ÀÌÅÍ »èÁ¦ delete --±âº»Å°·Î »èÁ¦
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ delete --ï¿½âº»Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	public int delete(int bno);
-	//µ¥ÀÌÅÍ ¼öÁ¤ update -- ±âº»Å° Á¶°Ç/ Á¦¸ñ, ³»¿ë, ÀÛ¼ºÀÚ, ¼öÁ¤ ³¯Â¥ º¯°æ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ update -- ï¿½âº»Å° ï¿½ï¿½ï¿½ï¿½/ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½Û¼ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â¥ ï¿½ï¿½ï¿½ï¿½
 	public int update(BoardVO vo);
+	public void updateReplyCnt(@Param("bno") int bno,
+								@Param("amount") int amount);
+	
+	//1. ìœ„ updateReplyCnt ë©”ì†Œë“œì— í•´ë‹¹í•˜ëŠ” ì¿¼ë¦¬ ì‘ì„±
+	//2. ëŒ“ê¸€ ì‚½ì… / ì‚­ì œ ì‹œ updateReplyCnt ë©”ì†Œë“œ ì‹¤í–‰
+	// =>íŠ¸ëœì­ì…˜ ì²˜ë¦¬
+	//3. ê²Œì‹œê¸€ ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ“ê¸€ ê°œìˆ˜ ë³€ê²½ í™•ì¸
+	
+	
 }

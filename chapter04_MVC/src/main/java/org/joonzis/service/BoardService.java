@@ -2,19 +2,26 @@ package org.joonzis.service;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+import org.joonzis.domain.BoardAttachVO;
 import org.joonzis.domain.BoardVO;
+import org.joonzis.domain.Criteria;
 
 public interface BoardService {
-	//ÀüÃ¼ ¸®½ºÆ®
-		public List<BoardVO> getList();
-		//µ¥ÀÌÅÍ »ğÀÔ
+		//ì „ì²´ ë¦¬ìŠ¤íŠ¸
+		public List<BoardVO> getList(Criteria cri);
+		//ê²Œì‹œê¸€ ìˆ˜
+		public int getTotal();
+		//ë°ì´í„° ì‚½ì…
 		public void register(BoardVO vo);
-		//´ÜÀÏ µ¥ÀÌÅÍ
+		//ì¡°íšŒ
 		public BoardVO get(int bno);
-		//µ¥ÀÌÅÍ »èÁ¦
+		//ë°ì´í„° ì‚­ì œ
 		public boolean remove(int bno);
-		//µ¥ÀÌÅÍ ¼öÁ¤
+		//ë°ì´í„° ìˆ˜ì •
 		public boolean modify(BoardVO vo);
+		//ì²¨ë¶€íŒŒì¼ ë¦¬ìŠ¤íŠ¸
+		public List<BoardAttachVO> getAttachList(int bno);
 }
 
 

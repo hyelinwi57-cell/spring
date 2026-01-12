@@ -3,25 +3,46 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.joonzis.mapper.BoardMapper">
-	<select id="getList" resultType="org.joonzis.domain.BoardVO">
-		SELECT * FROM TBL_BOARD
+	<select id="getList" 
+         resultType="org.joonzis.domain.BoardVO"
+         parameterType="org.joonzis.domain.Criteria">
+      <![CDATA[
+         SELECT bno, title, content, writer, regdate, updatedate, replycnt
+         FROM (
+             SELECT rownum rn, a.*
+             FROM (
+                 SELECT bno, title, content, writer, regdate, updatedate,replycnt
+                 FROM tbl_board
+                 ORDER BY bno DESC
+             ) a
+             WHERE rownum <= #{pageNum} * #{amount}
+         )
+         WHERE rn > (#{pageNum} - 1) * #{amount}
+      ]]>
+   </select>
+   
+   <select id="getNextBno" resultType="int">
+		SELECT seq_board.CURRVAL FROM dual<!--CURRVAL: 현재값  -->
 	</select>
+	
 	<insert id="insert" parameterType="org.joonzis.domain.BoardVO">
-		INSERT INTO TBL_BOARD(title, content, writer, sysdate) 
+		INSERT INTO TBL_BOARD(bno, title, content, writer, regdate) 
 		VALUES(
+			seq_board.nextval,
 			#{title}, 
 			#{content}, 
 			#{writer},
 			sysdate
+			
 		)
 	</insert>
-	<select id="read" resultType="org.joonzis.domain.BoardVO">
+	<select id="read" parameterType="int" resultType="org.joonzis.domain.BoardVO">
 		SELECT * 
 		FROM TBL_BOARD 
 		WHERE bno = #{bno}
 	</select>
 	<delete id="delete" parameterType="int">
-		DELETE *
+		DELETE
 		FROM TBL_BOARD
 		WHERE bno = #{bno}
 	</delete>
@@ -31,8 +52,20 @@
 			title= #{title},
 			content= #{content},
 			writer= #{writer},
-			updatedate = #{updatedate}
+			updatedate = sysdate
 		WHERE 
 			bno = #{bno}
 	</update>
+	<select id="getTotal" resultType="int">
+		select count(*) from tbl_board
+	</select>
+	<update id="updateReplyCnt">
+		UPDATE TBL_BOARD
+		SET
+			replycnt = replycnt + #{amount}
+		WHERE bno = #{bno}	
+	</update>
+	
+	
+	
 </mapper>
