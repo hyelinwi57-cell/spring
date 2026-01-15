@@ -128,7 +128,7 @@ function registerModalPage(){
 	regReplyModalStyle();
 	//입력 내용 초기화& 불러오기
 	inputReply.value = '';
-	inputReplyer.value = '';
+	//inputReplyer.value = '';
 	
 	openModal();
 }
@@ -273,6 +273,9 @@ function removeReply() {
 })();
 
 //업로드 완료된 목록 보여주는 함수
+//1. 다운로드 기능 추가
+//2. 삭제 기능 방지
+
 let uploadResult = document.querySelector('.uploadResult ul')
 function showUploadedFile(uploadResultArr){
 	let str = ``;
@@ -284,12 +287,13 @@ function showUploadedFile(uploadResultArr){
 		);
 		console.log(fileCallPath)
 		str += `<li path="${file.uploadPath}" uuid="${file.uuid}" fileName="${file.fileName}">`;
-		str += `<a href="/download?fileName=${fileCallPath}">`;
+		str += `<a href="/download?fileName=${fileCallPath}">`; //다운로드 기능 추가
 		str += `${file.fileName}`;
 		str += `</a>`;
-		// str += `<span data-file="${fileCallPath}">X</span>`;
+		// str += `<span data-file="${fileCallPath}">X</span>`;   //삭제 기능 방지
 		str += `</li>`;
 	});
 	uploadResult.innerHTML = str;
+
 }
 	

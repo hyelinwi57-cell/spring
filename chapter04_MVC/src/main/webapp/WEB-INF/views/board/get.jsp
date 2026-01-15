@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri = "http://www.springframework.org/security/tags" prefix = "sec" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,7 +40,16 @@
 			</table>
 		</form>
 		<div class="panel-body-btns">
-			<button type="button" class="btn btn-sec" id="modifyBtn">수정</button>
+			
+			<sec:authentication property="principal" var="pinfo"/>  <!-- 변수화 -->
+			<sec:authorize access="isAuthenticated()">
+				<c:if test="${pinfo.username eq vo.writer }">
+					<button type="button" class="btn btn-sec" id="modifyBtn">수정</button>
+				</c:if>
+			</sec:authorize>
+			
+			
+			
 			<button type="button" class="btn btn-fir" id="indexBtn">목록으로 이동</button>
 		</div>
 	</div>
@@ -50,7 +61,11 @@
             <a href="mainPage">댓글</a>
          </div>
          <div class="panel-footer-register">
-            <button type="button" class="btn btn-sec" id="replyBtn">댓글 달기</button>
+         <sec:authorize access="isAuthenticated()">
+         	<c:if test="${pinfo.username ne vo.writer }">
+            	<button type="button" class="btn btn-sec" id="replyBtn">댓글 달기</button>
+            </c:if>	
+          </sec:authorize>
          </div>
       </div>
       <div class="panel-footer-body">
@@ -102,7 +117,19 @@
                      <div>
                         <span class="modal-font">작성자</span>
                      </div>
-                     <p><input type="text" name="replyer"></p>
+                     
+                     <sec:authorize access="isAuthenticated()">
+  					 <sec:authentication property="name" var="loginId"/>
+                     <p><input 
+                     type="text" 
+                     name="replyer"
+                     value='<sec:authentication property="principal.username"/>'
+					 readonly="readonly"></p>
+					 </sec:authorize>
+					 
+					 <sec:authorize access="isAnonymous()">
+  					 <input type="text" name="replyer" value="로그인 후 이용" readonly />
+					 </sec:authorize>
                   </div>
                </li>
                <li>

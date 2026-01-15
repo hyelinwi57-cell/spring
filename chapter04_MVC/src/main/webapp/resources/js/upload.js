@@ -3,6 +3,7 @@ console.log('upload.js 실행.....');
 const regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
 const MAX_SIZE = 5242880;  //5MB
 
+//파일의 크기와 종류 체크
 function checkExtension(fileName, fileSize){
 	if(fileSize >= MAX_SIZE){
 		alert("파일 사이즈 초과");
@@ -22,7 +23,7 @@ let cloneObj = uploadDiv.firstElementChild.cloneNode(true);
 
 
 
-//실제 파일 업로드
+//input에서 파일 선택 후 바로 서버에 업로드 되는 이벤트를 거는 코드
 document.querySelector('input[type="file"]').addEventListener('change',()=>{
 	const inputFile =
 		document.querySelector('input[type="file"]');
@@ -36,6 +37,7 @@ document.querySelector('input[type="file"]').addEventListener('change',()=>{
 		}
 		formData.append('uploadFile', files[i]);
 	}
+	//실제 파일 업로드
 	fetch(`/uploadAsyncAction`,
 		{
 			method : 'post',
@@ -50,6 +52,7 @@ document.querySelector('input[type="file"]').addEventListener('change',()=>{
 		})
 		.catch(err => console.log(err));
 });
+
 
 //업로드 완료된 목록 보여주는 함수
 let uploadResult = document.querySelector('.uploadResult ul')

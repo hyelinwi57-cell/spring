@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri = "http://www.springframework.org/security/tags" prefix = "sec" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,7 +23,12 @@
 					</tr>
 					<tr>
 						<th>작성자</th>
-						<td><input type="text" name="writer"></td>
+						<td><input 
+						type="text" 
+						name="writer"
+						value='<sec:authentication property="principal.username"/>'
+						readonly="readonly"
+						></td>
 					</tr>
 					<tr>
 						<th>내용</th>
@@ -42,19 +48,19 @@
 	
 	<!-- 파일 첨부 영역 -->
 		<div class="file-container">
-	   <div class="file-header">
-	      <div class="file-title">
-	         <a>파일 첨부</a>
-	      </div>
-	   </div>
-	   <div class="file-body">
-	      <div class="uploadDiv">
-	         <input type="file" name="uploadFile" multiple="multiple">
-	      </div>
-	      <div class="uploadResult">
-	         <ul></ul>
-	      </div>
-	   </div>
+	   		<div class="file-header">
+		      <div class="file-title">
+		         <a>파일 첨부</a>
+		      </div>
+	   		</div>
+		   <div class="file-body">
+		      <div class="uploadDiv">
+		         <input type="file" name="uploadFile" multiple="multiple">
+		      </div>
+		      <div class="uploadResult">
+		         <ul></ul>
+		      </div>
+		   </div>
 	</div>
 	
 	

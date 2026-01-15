@@ -13,6 +13,8 @@ C:\dev\workspace\workspace_spring\.metadata\.plugins\org.eclipse.jst.jsp.core\js
 \chapter01_begin\src\main\java
 C:\dev\workspace\workspace_spring\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\778646996.index
 \chapter02_DI\src\main\java
+C:\dev\workspace\workspace_spring\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2605873791.index
+\chapter04_MVC\src\main\java
 C:\dev\workspace\workspace_spring\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2977588566.index
 \chapter04_MVC\src\main\java
 C:\dev\workspace\workspace_spring\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1229376985.index

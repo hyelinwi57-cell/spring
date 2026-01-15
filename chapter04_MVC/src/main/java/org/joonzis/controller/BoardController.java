@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,6 +57,7 @@ public class BoardController {
 	}
 	
 	// 등록
+	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/register")
 	public String register(BoardVO vo , RedirectAttributes rttr) { // 자동 매핑?
 		log.info("BoardController::register");
@@ -65,8 +67,11 @@ public class BoardController {
 		return "redirect:/board/list"; 	//포워딩이 아닌 리다이렉트 방식으로 이동할 때
 										//또는 매개변수에 RedirectAttributes rttr를 받아서 위의 주석과 같이 사용
 	}
+	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/register")
 	public void registerPage() {}
+	
+	
 	// 조회
 	@GetMapping("/get")
 	public String read(@RequestParam("bno") int bno,

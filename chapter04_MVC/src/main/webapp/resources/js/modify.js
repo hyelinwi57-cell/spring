@@ -52,6 +52,8 @@ function remove() {
 })();
 
 //업로드 완료된 목록 보여주는 함수
+//1. 파일 수정/삭제 기능 추가
+//*파일 수정은 삭제 후 다시 업로드 
 let uploadResult = document.querySelector('.uploadResult ul')
 function showUploadedFile(uploadResultArr){
 	let str = ``;
@@ -98,5 +100,4 @@ uploadResult.addEventListener('click', e=>{
 			.catch(err => console.log(err));
 	}
 	
-})	
-	
+})

@@ -29,3 +29,22 @@ function setStorageData(pageNum, amount){
 function getStorageData(){
 	return JSON.parse(localStorage.getItem('page_data'))
 }
+
+//------------principal 객체 가져오기
+let principal;
+async function getPrincipal(){
+	try {
+		const response = await fetch(`/api/currentUser.json`);
+		const userPrincipal = await response.json();
+		principal = userPrincipal.principal;
+		console.log(principal);
+	} catch (e) {
+		console.log(`에러 : ${e}`);
+	}
+}
+getPrincipal();
+
+
+
+
+
