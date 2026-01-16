@@ -53,3 +53,7 @@ document.querySelectorAll('.page-nation li a').forEach(a=>{
     location.href = '/board/list?' + sendData;
   });
 });
+
+
+
+

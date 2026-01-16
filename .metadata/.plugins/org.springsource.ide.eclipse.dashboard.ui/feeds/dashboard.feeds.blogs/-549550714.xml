@@ -1,10 +1,152 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Spring]]></title><description><![CDATA[Level up your Java code and explore what Spring can do for you.]]></description><link>https://spring.io</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 15 Jan 2026 08:36:06 GMT</lastBuildDate><item><title><![CDATA[Spring Framework 7.0.3 Available Now]]></title><link>https://spring.io/blog/2026/01/15/spring-framework-7-0-3-available-now</link><guid isPermaLink="true">https://spring.io/blog/2026/01/15/spring-framework-7-0-3-available-now</guid><dc:creator><![CDATA[bclozel]]></dc:creator><pubDate>Thu, 15 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;On behalf of the team and everyone who has contributed, I am pleased to announce that Spring Framework &lt;code&gt;7.0.3&lt;/code&gt; is available now.&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Spring]]></title><description><![CDATA[Level up your Java code and explore what Spring can do for you.]]></description><link>https://spring.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 16 Jan 2026 00:41:48 GMT</lastBuildDate><item><title><![CDATA[Spring AI Agentic Patterns (Part 2): AskUserQuestionTool - Agents That Clarify Before Acting]]></title><link>https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool</link><guid isPermaLink="true">https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool</guid><dc:creator><![CDATA[tzolov]]></dc:creator><pubDate>Fri, 16 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;img style=&quot;display: block; margin: auto;&quot; align=&quot;right&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260112/ask-user-question-tool-logo.png&quot; width=&quot;200&quot;&gt;
+&lt;p&gt;Traditional AI interactions follow a common pattern: you provide a prompt, the AI makes assumptions, and produces a response. When those assumptions don&apos;t match your needs, you&apos;re left iterating through corrections. Each assumption creates rework?wasting time and context.&lt;/p&gt;
+&lt;p&gt;What if your AI agent could ask you clarifying questions before providing answers?&lt;/p&gt;
+&lt;p&gt;The &lt;strong&gt;AskUserQuestionTool&lt;/strong&gt; addresses this. It allows the AI agent to ask clarifying questions &lt;em&gt;before&lt;/em&gt; answering, gathers requirements interactively, and creates a specification aligned with your actual needs from the start.&lt;/p&gt;
+&lt;p&gt;Spring AI&apos;s implementation brings this interactive pattern to the Java ecosystem, ensuring LLM portability?define your question handlers once and use them with OpenAI, Anthropic, Google Gemini, or any other supported model.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;This is Part 2 of our Spring AI Agentic Patterns series.&lt;/strong&gt; In &lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills&quot;&gt;Part 1&lt;/a&gt;, we explored Agent Skills?modular capabilities that extend AI functionality. Now we examine AskUserQuestionTool, which transforms AI agents into collaborative partners that gather requirements interactively.&lt;/p&gt;
+&lt;p&gt;? &lt;strong&gt;Want to jump right in?&lt;/strong&gt; Skip to the &lt;a href=&quot;#getting-started&quot;&gt;Getting Started&lt;/a&gt; section.&lt;/p&gt;
+&lt;h2 id=&quot;how-askuserquestiontool-works&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#how-askuserquestiontool-works&quot; aria-label=&quot;how askuserquestiontool works permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;How AskUserQuestionTool Works&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/AskUserQuestionTool.md&quot;&gt;AskUserQuestionTool&lt;/a&gt;, part of the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt; toolkit, is a portable, Spring AI implementation of &lt;a href=&quot;https://platform.claude.com/docs/en/agent-sdk/user-input#question-format&quot;&gt;Claude Code&apos;s AskUserQuestion tool&lt;/a&gt;, enabling AI agents to ask users multiple-choice questions during execution.&lt;/p&gt;
+&lt;img style=&quot;display: block; margin: auto;&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260112/ask-user-question-tool-flow.png&quot; width=&quot;800&quot;&gt;
+&lt;p&gt;The tool follows a question-answer workflow:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;AI generates questions&lt;/strong&gt; - The agent determines it needs input and constructs questions (each containing question text, header, 2-4 options, and multiSelect flag) and calls the &lt;code&gt;askUserQuestion&lt;/code&gt; tool function&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;User provides answers&lt;/strong&gt; - Your custom handler receives these questions, presents them through your UI, collects answers, and returns them to AI.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ask additional questions&lt;/strong&gt; - Repeat 1 and 2 if necessary to collect additional user feedback&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;AI continues with context&lt;/strong&gt; - The agent uses the answers to provide tailored solutions&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Each question supports:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Single-select or multi-select&lt;/strong&gt; - Choose one option or combine multiple&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Free-text input&lt;/strong&gt; - Users can always provide custom text beyond predefined options&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Rich context&lt;/strong&gt; - Every option includes a description explaining implications and trade-offs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;? &lt;strong&gt;Portability and Model Agnostic - No Vendor Lock-In&lt;/strong&gt; - Unlike implementations tied to specific LLM platforms, this Spring AI implementation works across many LLM providers, letting you switch models without rewriting code or question handlers.&lt;/p&gt;
+&lt;p&gt;? &lt;strong&gt;Relation to MCP Elicitation&lt;/strong&gt; - AskUserQuestionTool serves as an agent-local approach to interactive user input, conceptually similar to the &lt;a href=&quot;https://modelcontextprotocol.io/specification/2025-03-26/client/elicitation&quot;&gt;MCP Elicitation&lt;/a&gt; capability. While MCP Elicitation enables MCP servers to request structured user input via JSON schemas, AskUserQuestionTool provides the same interactive pattern directly within your agent without requiring an MCP server. Spring AI also provides &lt;a href=&quot;https://docs.spring.io/spring-ai/reference/api/mcp/mcp-annotations-client.html#_mcpelicitation&quot;&gt;full MCP Elicitation support&lt;/a&gt; via the &lt;code&gt;@McpElicitation&lt;/code&gt; annotation for server-driven scenarios.&lt;/p&gt;
+&lt;h3 id=&quot;example-travel-recommendation-assistant&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-travel-recommendation-assistant&quot; aria-label=&quot;example travel recommendation assistant permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example: Travel Recommendation Assistant&lt;/h3&gt;
+&lt;p&gt;Here&apos;s how the tool works in practice with a travel recommendation use case from the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;USER: What EU country to visit next?
+
+Interests: What are your main interests when traveling?
+  1. History &amp;#x26; Culture - Museums, historical sites, architecture
+  2. Nature &amp;#x26; Outdoors - Hiking, beaches, mountains, national parks
+  3. Food &amp;#x26; Drink - Culinary experiences, wine regions, food tours
+  4. Cities &amp;#x26; Urban - Urban exploration, shopping, nightlife
+  (Enter numbers separated by commas, or type custom text)
+1,2
+
+Season: When are you planning to travel?
+  1. Spring - March to May - Mild temperatures, fewer tourists
+  2. Summer - June to August - Warm weather, peak season
+  3. Fall - September to November - Cooler temps, autumn colors
+  4. Winter - December to February - Christmas markets, winter sports
+  (Enter a number, or type custom text)
+3
+
+Budget: What&apos;s your approximate budget level for this trip?
+  1. ...
+...
+
+ASSISTANT: Based on your preferences for a fall trip with interests in history,
+culture, and nature on a moderate budget, while seeking a mix of popular spots
+and off-the-beaten-path experiences, here are excellent EU countries to consider:
+
+1. **Portugal** - Lisbon&apos;s historic districts, Douro Valley wine harvests,
+   Algarve coastlines. Affordable with pleasant fall temperatures.
+2. **Greece** - Ancient sites, beautiful islands, still warm for swimming
+   in fall with fewer crowds.
+3. **Slovenia** - Lake Bled, Julian Alps, spectacular autumn colors.
+   More affordable than neighboring Austria or Italy.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The agent gathered comprehensive requirements through interactive questions before providing personalized recommendations?no assumptions, no iteration needed.&lt;/p&gt;
+&lt;h2 id=&quot;getting-started&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#getting-started&quot; aria-label=&quot;getting started permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Getting Started&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;1. Add the dependency:&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-xml&quot;&gt;&amp;#x3C;dependency&gt;
+    &amp;#x3C;groupId&gt;org.springaicommunity&amp;#x3C;/groupId&gt;
+    &amp;#x3C;artifactId&gt;spring-ai-agent-utils&amp;#x3C;/artifactId&gt;
+    &amp;#x3C;version&gt;0.3.0&amp;#x3C;/version&gt;
+&amp;#x3C;/dependency&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;2. Configure your agent:&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;ChatClient chatClient = chatClientBuilder
+    .defaultTools(AskUserQuestionTool.builder()
+        .questionHandler(this::handleQuestions)
+        .build())
+    .build();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;3. Implement your &lt;code&gt;QuestionHandler&lt;/code&gt;&lt;/strong&gt; using the console or web examples below.&lt;/p&gt;
+&lt;p&gt;The agent automatically invokes the tool when it needs clarification and uses the answers to provide tailored solutions.&lt;/p&gt;
+&lt;p&gt;? &lt;strong&gt;Demo:&lt;/strong&gt; &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;questionhandler-examples&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#questionhandler-examples&quot; aria-label=&quot;questionhandler examples permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;QuestionHandler Examples&lt;/h3&gt;
+&lt;h4 id=&quot;console-based-questionhandler&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#console-based-questionhandler&quot; aria-label=&quot;console based questionhandler permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Console-Based QuestionHandler&lt;/h4&gt;
+&lt;p&gt;A console-based implementation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;private static Map&amp;#x3C;String, String&gt; handleQuestions(List&amp;#x3C;Question&gt; questions) {
+    Map&amp;#x3C;String, String&gt; answers = new HashMap&amp;#x3C;&gt;();
+    Scanner scanner = new Scanner(System.in);
+
+    for (Question q : questions) {
+        System.out.println(&quot;\n&quot; + q.header() + &quot;: &quot; + q.question());
+
+        for (int i = 0; i &amp;#x3C; q.options().size(); i++) {
+            Option opt = q.options().get(i);
+            System.out.printf(&quot;  %d. %s - %s%n&quot;, i + 1, opt.label(), opt.description());
+        }
+
+        System.out.println(q.multiSelect()
+            ? &quot;  (Enter numbers separated by commas, or type custom text)&quot;
+            : &quot;  (Enter a number, or type custom text)&quot;);
+
+        String response = scanner.nextLine().trim();
+
+        // Parse numeric selection(s) or use as free text
+        try {
+            String[] parts = response.split(&quot;,&quot;);
+            List&amp;#x3C;String&gt; labels = new ArrayList&amp;#x3C;&gt;();
+            for (String part : parts) {
+                int index = Integer.parseInt(part.trim()) - 1;
+                if (index &gt;= 0 &amp;#x26;&amp;#x26; index &amp;#x3C; q.options().size()) {
+                    labels.add(q.options().get(index).label());
+                }
+            }
+            answers.put(q.question(), labels.isEmpty() ? response : String.join(&quot;, &quot;, labels));
+        } catch (NumberFormatException e) {
+            answers.put(q.question(), response);
+        }
+    }
+    return answers;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The handler displays options, accepts numeric selections (like &quot;1,2&quot;) or free text (like &quot;A moderate budget&quot;), and returns answers to the agent.&lt;/p&gt;
+&lt;h4 id=&quot;web-based-questionhandler&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#web-based-questionhandler&quot; aria-label=&quot;web based questionhandler permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Web-Based QuestionHandler&lt;/h4&gt;
+&lt;p&gt;For web applications, use &lt;code&gt;CompletableFuture&lt;/code&gt; to bridge async UI interactions with the synchronous &lt;code&gt;QuestionHandler&lt;/code&gt; API. Send questions to your frontend via WebSocket/SSE and block on &lt;code&gt;future.get()&lt;/code&gt;. Complete the future when the user submits answers via a REST endpoint.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#conclusion&quot; aria-label=&quot;conclusion permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;AskUserQuestionTool&lt;/strong&gt; transforms AI agents from assumption-based responders into collaborative partners that gather requirements before acting, delivering answers aligned with your needs on the first attempt.&lt;/p&gt;
+&lt;p&gt;Coming up in this series:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Task Management with TodoWriteTool&lt;/strong&gt; - Track multi-step workflows transparently&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Hierarchical Sub-Agents&lt;/strong&gt; - Build complex multi-agent architectures with specialized sub-agents&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Start experimenting with the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;resources&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#resources&quot; aria-label=&quot;resources permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Resources&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GitHub Repository&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;AskUserQuestionTool Documentation&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/AskUserQuestionTool.md&quot;&gt;AskUserQuestionTool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Spring AI Documentation&lt;/strong&gt;: &lt;a href=&quot;https://docs.spring.io/spring-ai/reference/&quot;&gt;docs.spring.io/spring-ai&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Demo&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt; - Console-based interactive questioning (this post)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Claude Agent SDK&lt;/strong&gt;: &lt;a href=&quot;https://platform.claude.com/docs/en/agent-sdk/user-input#question-format&quot;&gt;User Input Documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;related-spring-ai-blogs&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#related-spring-ai-blogs&quot; aria-label=&quot;related spring ai blogs permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Related Spring AI Blogs&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills&quot;&gt;Agent Skills - Modular Capabilities&lt;/a&gt; - Part 1 of this series&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2025/12/11/spring-ai-tool-search-tools-tzolov&quot;&gt;Dynamic Tool Discovery&lt;/a&gt; - Achieve 34-64% token savings&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2025/12/23/spring-ai-tool-argument-augmenter-tzolov&quot;&gt;Tool Argument Augmentation&lt;/a&gt; - Capture LLM reasoning during tool execution&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Spring Framework 7.0.3 Available Now]]></title><link>https://spring.io/blog/2026/01/15/spring-framework-7-0-3-available-now</link><guid isPermaLink="true">https://spring.io/blog/2026/01/15/spring-framework-7-0-3-available-now</guid><dc:creator><![CDATA[bclozel]]></dc:creator><pubDate>Thu, 15 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;On behalf of the team and everyone who has contributed, I am pleased to announce that Spring Framework &lt;code&gt;7.0.3&lt;/code&gt; is available now.&lt;/p&gt;
 &lt;p&gt;Spring Framework &lt;code&gt;7.0.3&lt;/code&gt; ships with &lt;a href=&quot;https://github.com/spring-projects/spring-framework/releases/tag/v7.0.3&quot;&gt;65 fixes and documentation improvements&lt;/a&gt;.
 This version will be shipped next week with Spring Boot &lt;code&gt;4.0.2&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;This release brings a noteworthy change - Spring Framework will now lazily pause an unused test &lt;code&gt;ApplicationContext&lt;/code&gt; the 1st time a different context is used.
-You can override this behavior by setting &lt;code&gt;&quot;spring.test.context.cache.pause&quot;&lt;/code&gt; to &lt;code&gt;ALWAYS&lt;/code&gt; pause, or disable pausing altogether by setting that to &lt;code&gt;NEVER&lt;/code&gt;.
+You can override this behavior by setting the &lt;code&gt;spring.test.context.cache.pause&lt;/code&gt; property to &lt;code&gt;ALWAYS&lt;/code&gt;, or disable pausing altogether by setting that to &lt;code&gt;NEVER&lt;/code&gt;.
 Check out the &lt;a href=&quot;https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes#pausing-of-test-application-contexts&quot;&gt;release notes&lt;/a&gt;
-and &lt;a href=&quot;https://docs.spring.io/spring-framework/reference/7.0-SNAPSHOT/testing/testcontext-framework/ctx-management/context-pausing.html&quot;&gt;reference documentation&lt;/a&gt;
+and &lt;a href=&quot;https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/ctx-management/context-pausing.html&quot;&gt;reference documentation&lt;/a&gt;
 to learn more about test context pausing.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://spring.io/projects/spring-framework/&quot;&gt;Project Page&lt;/a&gt; | &lt;a href=&quot;https://github.com/spring-projects/spring-framework&quot;&gt;GitHub&lt;/a&gt; | &lt;a href=&quot;https://github.com/spring-projects/spring-framework/issues&quot;&gt;Issues&lt;/a&gt; | &lt;a href=&quot;https://docs.spring.io/spring-framework/reference/&quot;&gt;Documentation&lt;/a&gt;&lt;/p&gt;</content:encoded></item><item><title><![CDATA[A Bootiful Podcast: Jonatan Ivanov on how to measure all the things with Micrometer]]></title><link>https://spring.io/blog/2026/01/15/a-bootiful-podcast-jonatan-ivanov</link><guid isPermaLink="true">https://spring.io/blog/2026/01/15/a-bootiful-podcast-jonatan-ivanov</guid><dc:creator><![CDATA[joshlong]]></dc:creator><pubDate>Thu, 15 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Hi, Spring fans! This week we catch up with the observably awesome Jonatan Ivanov on how to measure all the things with Micrometer&lt;/p&gt;
 &lt;iframe title=&quot;Jonatan Ivanov on how to measure all the things with Micrometer &quot; allowtransparency=&quot;true&quot; height=&quot;300&quot; width=&quot;100%&quot; style=&quot;border: none; min-width: min(100%, 430px);height:300px;&quot; scrolling=&quot;no&quot; data-name=&quot;pb-iframe-player&quot; src=&quot;https://www.podbean.com/player-v2/?from=embed&amp;i=wd37a-1a1af42-pb&amp;square=1&amp;share=1&amp;download=1&amp;fonts=Arial&amp;skin=1&amp;font-color=&amp;rtl=0&amp;logo_link=&amp;btn-skin=7&amp;size=300&quot; loading=&quot;lazy&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content:encoded></item><item><title><![CDATA[This Week in Spring - January 13th, 2026 ]]></title><link>https://spring.io/blog/2026/01/13/this-week-in-spring-january-13th-2026</link><guid isPermaLink="true">https://spring.io/blog/2026/01/13/this-week-in-spring-january-13th-2026</guid><dc:creator><![CDATA[joshlong]]></dc:creator><pubDate>Tue, 13 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Hi, Spring fans, and welcome to another installment of &lt;em&gt;This Week in Spring&lt;/em&gt;! It&apos;s the 13th of January, 2026, and it&apos;s been quite the week indeed! Let&apos;s dive right into it!&lt;/p&gt;
@@ -20,198 +162,4 @@ to learn more about test context pausing.&lt;/p&gt;
 &lt;li&gt;I don&apos;t know if this is AI slop. But it&apos;s interesting: &lt;a href=&quot;https://medium.com/engineering-playbook/fastapi-vs-spring-boot-i-tested-both-for-6-months-in-production-96c04f7ebabe&quot;&gt;FastAPI vs Spring Boot: I tested both for six months&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;the &lt;a href=&quot;https://piotrminkowski.com/2026/01/06/istio-spring-boot-library-released/&quot;&gt;Istio Spring Boot integration has been released&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Cool! The &lt;a href=&quot;https://github.com/Kotlin/Kotlin-AI-Examples/blob/master/notebooks/spring-ai/tutorials/2.%20Prompts.ipynb&quot;&gt;Kotlin AI examples notebooks use Spring AI, too!&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Spring AI Agentic Patterns (Part 1): Agent Skills - Modular, Reusable Capabilities]]></title><link>https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills</link><guid isPermaLink="true">https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills</guid><dc:creator><![CDATA[tzolov]]></dc:creator><pubDate>Tue, 13 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;img style=&quot;display: block; margin: auto;&quot; align=&quot;right&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260105/spring-ai-agent-skills.png&quot; width=&quot;150&quot;&gt;
-&lt;p&gt;Agent Skills are modular folders of instructions, scripts, and resources that AI agents can discover and load on demand. Instead of hardcoding knowledge into prompts or creating specialized tools for every task, skills provide a flexible way to extend agent capabilities.&lt;/p&gt;
-&lt;p&gt;Spring AI&apos;s implementation brings Agent Skills to the Java ecosystem, ensuring LLM portability?define your skills once and use them with OpenAI, Anthropic, Google Gemini, or any other supported model.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;This is the first post in our Spring AI Agentic Patterns series&lt;/strong&gt;. This series explores the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt; toolkit?an extensive set of agentic patterns for Spring AI, inspired by &lt;a href=&quot;https://code.claude.com/docs/en/overview&quot;&gt;Claude Code&lt;/a&gt;. We&apos;ll cover Agent Skills (this post), followed by Task Management, AskUserQuestion for interactive workflows, and Hierarchical Sub-Agents for complex multi-agent systems.&lt;/p&gt;
-&lt;p&gt;? &lt;strong&gt;Want to jump right in?&lt;/strong&gt; Skip to the &lt;a href=&quot;#getting-started&quot;&gt;Getting Started&lt;/a&gt; section.&lt;/p&gt;
-&lt;p&gt;Let&apos;s start with Agent Skills - the foundation for organizing agent knowledge.&lt;/p&gt;
-&lt;h2 id=&quot;what-are-agent-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#what-are-agent-skills&quot; aria-label=&quot;what are agent skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;What Are Agent Skills?&lt;/h2&gt;
-&lt;p&gt;Agent Skills are modular capabilities packaged as Markdown files with &lt;code&gt;YAML frontmatter&lt;/code&gt;. Each skill is a folder containing a &lt;code&gt;SKILL.md&lt;/code&gt; file with metadata (&lt;code&gt;name&lt;/code&gt; and &lt;code&gt;description&lt;/code&gt;, at minimum) and instructions that tell an agent how to perform a specific task. Skills can also bundle scripts, templates, and reference materials. The frontmatter supports both simple string values and complex YAML structures (lists, nested objects) for advanced use cases.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;my-skill/
-戍式式 SKILL.md          # Required: instructions + metadata
-戍式式 scripts/          # Optional: executable code
-戍式式 references/       # Optional: documentation
-戌式式 assets/           # Optional: templates, resources
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Skills use &lt;strong&gt;progressive disclosure&lt;/strong&gt; to manage context efficiently:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Discovery&lt;/strong&gt;: At startup, agents load only the name and description of each available skill, just enough to know when it might be relevant.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Activation&lt;/strong&gt;: When a task matches a skill&apos;s description, the agent reads the full &lt;code&gt;SKILL.md&lt;/code&gt; instructions into context.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Execution&lt;/strong&gt;: The agent follows the instructions, optionally loading referenced files or executing bundled code as needed.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;This approach allows you to register hundreds of skills while keeping your context window lean.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;?Tip:&lt;/strong&gt; Find out more about Agent Skills in the &lt;a href=&quot;https://agentskills.io/specification&quot;&gt;official specification&lt;/a&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;why-use-agent-skills-in-spring-ai&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#why-use-agent-skills-in-spring-ai&quot; aria-label=&quot;why use agent skills in spring ai permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Why Use Agent Skills in Spring AI&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;Seamless Integration&lt;/strong&gt; - Add Agent Skills to your existing Spring AI application by simply registering a few tools?no architectural changes required.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Portability and Model Agnostic - No Vendor Lock-In&lt;/strong&gt; - Unlike implementations tied to specific LLM platforms, this Spring AI implementation works across many LLM providers, letting you switch models without rewriting code or skills.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Reusable and Composable&lt;/strong&gt; - Skills can be shared across projects, version-controlled with your code, combined to create complex workflows, and extended with helper scripts and reference materials. Spring AI Skills seamlessly supports any existing Claude Code Skills.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Related Spring AI Tools:&lt;/strong&gt; Agent Skills work well with other Spring AI tool-based features like &lt;a href=&quot;https://spring.io/blog/2025/12/11/spring-ai-tool-search-tools-tzolov&quot;&gt;Dynamic Tool Discovery&lt;/a&gt; for efficient tool selection and &lt;a href=&quot;https://spring.io/blog/2025/12/23/spring-ai-tool-argument-augmenter-tzolov&quot;&gt;Tool Argument Augmentation&lt;/a&gt; for capturing LLM reasoning during skill execution.&lt;/p&gt;
-&lt;h2 id=&quot;how-spring-ai-skills-work&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#how-spring-ai-skills-work&quot; aria-label=&quot;how spring ai skills work permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;How Spring AI Skills Work&lt;/h2&gt;
-&lt;p&gt;Spring AI uses the &lt;a href=&quot;https://agentskills.io/integrate-skills#integration-approaches&quot;&gt;tool-based integration approach&lt;/a&gt;, implementing tools that allow any LLM to trigger skills and access bundled assets. The implementation closely follows &lt;a href=&quot;https://code.claude.com/docs/en/settings#tools-available-to-claude&quot;&gt;Claude Code&apos;s&lt;/a&gt; tool specifications for &lt;code&gt;Skills&lt;/code&gt;, &lt;code&gt;Bash&lt;/code&gt;, and &lt;code&gt;Read&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;The core set of tools is: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/SkillsTool.md&quot;&gt;SkillsTool&lt;/a&gt; (required), &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/ShellTools.md&quot;&gt;ShellTools&lt;/a&gt; (optional), and &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/FileSystemTools.md&quot;&gt;FileSystemTools&lt;/a&gt; (optional). SkillsTool provides a &lt;code&gt;Skill&lt;/code&gt; function that enables AI models to discover and load specified skills on demand, working in conjunction with FileSystemTools (for reading reference files) and ShellTools (for executing helper scripts).&lt;/p&gt;
-&lt;p&gt;Skills operate through a three-step process:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;1. Discovery (at startup)&lt;/strong&gt; - During initialization, SkillsTool scans configured skills directories (such as &lt;code&gt;.claude/skills/&lt;/code&gt;) and parses the YAML frontmatter from each &lt;code&gt;SKILL.md&lt;/code&gt; file. It extracts the &lt;code&gt;name&lt;/code&gt; and &lt;code&gt;description&lt;/code&gt; fields to build a lightweight skill registry that&apos;s embedded directly into the &lt;code&gt;Skill&lt;/code&gt; tool&apos;s description, making it visible to the LLM without consuming conversation context.&lt;/p&gt;
-&lt;img style=&quot;display: block; margin: auto;&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260105/skillstool1.png&quot; width=&quot;550&quot; align=&quot;right&quot; alt=&quot;Figure 1: Skills discovery and registration flow showing how SKILL.md files are parsed and registered at startup&quot;&gt;
-&lt;p&gt;&lt;strong&gt;2. Semantic Matching (during conversation)&lt;/strong&gt; - When a user makes a request, the LLM examines the skill descriptions embedded in the tool definition. If the LLM determines a user request semantically matches a skill&apos;s description, it invokes the &lt;code&gt;Skill&lt;/code&gt; tool with the skill name as a parameter.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;3. Execution (on skill invocation)&lt;/strong&gt; - When the &lt;code&gt;Skill&lt;/code&gt; tool is called, SkillsTool loads the full &lt;code&gt;SKILL.md&lt;/code&gt; content from disk and returns it to the LLM along with the skill&apos;s base directory path. The LLM then follows the instructions in the skill content. If the skill references additional files or helper scripts, the LLM uses FileSystemTools&apos; &lt;code&gt;Read&lt;/code&gt; function or ShellTools&apos; &lt;code&gt;Bash&lt;/code&gt; function to access them on demand.&lt;/p&gt;
-&lt;h2 id=&quot;skills-in-action&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#skills-in-action&quot; aria-label=&quot;skills in action permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Skills in Action&lt;/h2&gt;
-&lt;p&gt;This section demonstrates how skills work in practice with real-world examples.&lt;/p&gt;
-&lt;h3 id=&quot;example-skills-with-references-and-scripts&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-skills-with-references-and-scripts&quot; aria-label=&quot;example skills with references and scripts permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example: Skills with References and Scripts&lt;/h3&gt;
-&lt;p&gt;Step 3&apos;s on-demand loading becomes powerful when skills bundle additional resources. Skills can include reference files with supplementary instructions and executable scripts for data processing?all loaded only when needed.&lt;/p&gt;
-&lt;p&gt;Here&apos;s an example from the my-skill skill that includes a YouTube transcript extraction helper and supplementary &lt;code&gt;research_methodology.md&lt;/code&gt; instructions:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Skill Directory Structure:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;.claude/skills/my-skill/
-戍式式 SKILL.md
-戍式式 scripts/
-弛   戌式式 get_youtube_transcript.py
-戌式式 research_methodology.md
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;strong&gt;In SKILL.md:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;...
-**If concept is unfamiliar or requires research:**
-Load `research_methodology.md` for detailed guidance.
-
-**If user provides YouTube video:**
-Call `uv run scripts/get_youtube_transcript.py &amp;#x3C;video_url_or_id&gt;`
-for video&apos;s transcript.
-...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;When a user asks &quot;Explain the concepts from this video: &lt;a href=&quot;https://youtube.com/watch?v=abc123&quot;&gt;https://youtube.com/watch?v=abc123&lt;/a&gt;. Follow the research methodology&quot;, the AI:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Invokes the my-skill skill and loads its SKILL.md content&lt;/li&gt;
-&lt;li&gt;Recognizes the need for research methodology and uses &lt;code&gt;Read&lt;/code&gt; to load &lt;code&gt;research_methodology.md&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Recognizes the YouTube URL and uses &lt;code&gt;Bash&lt;/code&gt; to execute the helper script via ShellTools&lt;/li&gt;
-&lt;li&gt;Uses the video transcript to explain the concepts following the research methodology instructions&lt;/li&gt;
-&lt;/ol&gt;
-&lt;img style=&quot;display: block; margin: auto;&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260105/skillstool2.png&quot; width=&quot;700&quot; alt=&quot;Figure 2: Skill execution flow showing how the LLM uses FileSystemTools and ShellTools to access skill resources&quot;&gt;
-&lt;p&gt;The script code never enters the context window?only the output does, making this approach highly token-efficient.&lt;/p&gt;
-&lt;p&gt;?&lt;strong&gt;Demo&lt;/strong&gt; Check out the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/skills-demo&quot;&gt;Skills-Demo&lt;/a&gt; that implements this workflow.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;?? &lt;strong&gt;Security Note:&lt;/strong&gt; Scripts execute directly on your local machine without sandboxing. You&apos;ll need to pre-install any required runtimes (Python, Node.js, etc.). For safer operation, consider running your agentic application in a container.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;getting-started&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#getting-started&quot; aria-label=&quot;getting started permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Getting Started&lt;/h2&gt;
-&lt;p&gt;Ready to add Agent Skills to your Spring AI project?&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;1. Add the dependency:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-xml&quot;&gt;&amp;#x3C;dependency&gt;
-    &amp;#x3C;groupId&gt;org.springaicommunity&amp;#x3C;/groupId&gt;
-    &amp;#x3C;artifactId&gt;spring-ai-agent-utils&amp;#x3C;/artifactId&gt;
-    &amp;#x3C;version&gt;0.3.0&amp;#x3C;/version&gt;
-&amp;#x3C;/dependency&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; For the latest stable release, check the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/releases&quot;&gt;GitHub releases page&lt;/a&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; You need Spring-AI version &lt;code&gt;2.0.0-SNAPSHOT&lt;/code&gt; or &lt;code&gt;2.0.0-M2&lt;/code&gt; when released.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;&lt;strong&gt;2. Configure your agent:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;@SpringBootApplication
-public class Application {
-
-    @Bean
-    CommandLineRunner demo(ChatClient.Builder chatClientBuilder) {
-        return args -&gt; {
-            ChatClient chatClient = chatClientBuilder
-                .defaultToolCallbacks(SkillsTool.builder()
-                    .addSkillsDirectory(&quot;.claude/skills&quot;)
-                    .build())
-                .defaultTools(FileSystemTools.builder().build())
-                .defaultTools(ShellTools.builder().build())
-                .build();
-
-            String response = chatClient.prompt()
-                .user(&quot;Your task here&quot;)
-                .call()
-                .content();
-        };
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;? Production Tip:&lt;/strong&gt; For packaged applications, you can load skills from the classpath using Spring Resources:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;.defaultToolCallbacks(SkillsTool.builder()
-    .addSkillsResource(resourceLoader.getResource(&quot;classpath:.claude/skills&quot;))
-    .build())
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This is particularly useful when distributing skills as part of your JAR/WAR deployment.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;&lt;strong&gt;3. Create your first skill:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;mkdir -p .claude/skills/code-reviewer
-cat &gt; .claude/skills/code-reviewer/SKILL.md &amp;#x3C;&amp;#x3C; &apos;EOF&apos;
----
-name: code-reviewer
-description: Reviews Java code for best practices, security issues, and Spring Framework conventions. Use when user asks to review, analyze, or audit code.
----
-
-# Code Reviewer
-
-## Instructions
-When reviewing code:
-1. Check for security vulnerabilities (SQL injection, XSS, etc.)
-2. Verify Spring Boot best practices (proper use of @Service, @Repository, etc.)
-3. Look for potential null pointer exceptions
-4. Suggest improvements for readability and maintainability
-5. Provide specific line-by-line feedback with code examples
-EOF
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;strong&gt;4. Use your agent with the skill:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;String response = chatClient.prompt()
-    .user(&quot;Review this controller class for best practices: &quot; +
-          &quot;src/main/java/com/example/UserController.java&quot;)
-    .call()
-    .content();
-
-System.out.println(response);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;When you run this, the LLM will:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Match &quot;Review this controller&quot; with the code-reviewer skill&apos;s description&lt;/li&gt;
-&lt;li&gt;Invoke the &lt;code&gt;Skill&lt;/code&gt; tool to load the full instructions from &lt;code&gt;SKILL.md&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Use &lt;code&gt;Read&lt;/code&gt; tool (from FileSystemTools) to access the UserController.java file&lt;/li&gt;
-&lt;li&gt;Follow the review instructions and provide detailed feedback&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;The skill&apos;s instructions guide the LLM&apos;s behavior without you hardcoding review logic into your prompts?just update the skill file to change how reviews work.&lt;/p&gt;
-&lt;h2 id=&quot;current-limitations&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#current-limitations&quot; aria-label=&quot;current limitations permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Current Limitations&lt;/h2&gt;
-&lt;p&gt;While the Spring AI Agent Skills implementation is powerful and flexible, there are some current limitations to be aware of:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Script Execution Security&lt;/strong&gt; - Scripts executed via ShellTools run directly on your local machine without sandboxing. This means potentially unsafe code could access your filesystem, network, or system resources. Always review skill scripts before use, especially from third-party sources. Consider running your agentic application in a containerized environment (Docker, Kubernetes) to limit exposure.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;No Human-in-the-Loop&lt;/strong&gt; - Currently, there&apos;s no built-in mechanism to require human approval before executing skills or scripts. The LLM can invoke any registered skill and execute any bundled script automatically. For production environments handling sensitive operations, you may need to implement custom approval workflows using Spring AI&apos;s tool callback mechanisms, for example, a &lt;code&gt;ToolCallback&lt;/code&gt; wrapper.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Limited Skill Versioning&lt;/strong&gt; - There&apos;s currently no built-in versioning system for skills. If you update a skill&apos;s behavior, all applications using that skill will immediately use the new version. For production deployments, consider implementing your own versioning strategy through directory structure (e.g., &lt;code&gt;.claude/skills/v1/&lt;/code&gt;, &lt;code&gt;.claude/skills/v2/&lt;/code&gt;).&lt;/p&gt;
-&lt;h2 id=&quot;conclusion&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#conclusion&quot; aria-label=&quot;conclusion permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;Agent Skills bring modular, reusable capabilities to Spring AI applications without vendor lock-in. By providing domain knowledge on demand, you can update agent behavior without code changes, share skills across projects, and switch between LLM providers seamlessly.&lt;/p&gt;
-&lt;p&gt;The spring-ai-agent-utils implementation makes this pattern accessible to Java developers with a simple, tool-based approach. Whether building coding assistants, documentation generators, or domain-specific agents, skills provide a scalable foundation for organizing agent knowledge.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;This is just the beginning.&lt;/strong&gt; The upcoming posts in this series will dive deeper into advanced agentic patterns that transform how agents handle complex workflows:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Coming up in this series:&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Task Management&lt;/strong&gt; - Learn how TodoWriteTool enables transparent, trackable agent workflows by managing multi-step tasks with state tracking&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Interactive Workflows with AskUserQuestion&lt;/strong&gt; - Discover how agents can gather user preferences and clarify requirements during execution&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Hierarchical Sub-Agents&lt;/strong&gt; - Explore TaskTools for building multi-agent architectures where specialized sub-agents handle complex tasks with dedicated context windows&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Along the way, we&apos;ll demonstrate how the core agentic tools?FileSystemTools, ShellTools, GrepTool, GlobTool, and web access tools?integrate with these patterns to enable sophisticated agent behaviors.&lt;/p&gt;
-&lt;p&gt;Start exploring with the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples&quot;&gt;example projects&lt;/a&gt; or dive into the &lt;a href=&quot;https://agentskills.io/specification&quot;&gt;Agent Skills specification&lt;/a&gt; to learn more.&lt;/p&gt;
-&lt;h2 id=&quot;resources&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#resources&quot; aria-label=&quot;resources permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Resources&lt;/h2&gt;
-&lt;h4 id=&quot;spring-ai-agent-utils-toolkit&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#spring-ai-agent-utils-toolkit&quot; aria-label=&quot;spring ai agent utils toolkit permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Spring AI Agent Utils Toolkit&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;GitHub Repository&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Full Documentation&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/README.md&quot;&gt;README.md&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Tool Documentation&lt;/strong&gt; - Tools covered in this post: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/SkillsTool.md&quot;&gt;SkillsTool&lt;/a&gt;, &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/FileSystemTools.md&quot;&gt;FileSystemTools&lt;/a&gt;, &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/ShellTools.md&quot;&gt;ShellTools&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Spring AI Documentation&lt;/strong&gt;: &lt;a href=&quot;https://docs.spring.io/spring-ai/reference/&quot;&gt;docs.spring.io/spring-ai&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&quot;example-projects&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-projects&quot; aria-label=&quot;example projects permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example Projects&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/skills-demo&quot;&gt;skills-demo&lt;/a&gt; - Focused skills demonstration (this post)&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/code-agent-demo&quot;&gt;code-agent-demo&lt;/a&gt; - Full toolkit integration (Parts 2-3)&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/subagent-demo&quot;&gt;subagent-demo&lt;/a&gt; - Hierarchical agents (Part 4)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&quot;agent-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#agent-skills&quot; aria-label=&quot;agent skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Agent Skills&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Specification&lt;/strong&gt;: &lt;a href=&quot;https://agentskills.io/specification&quot;&gt;agentskills.io&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Claude Code Documentation&lt;/strong&gt;: &lt;a href=&quot;https://code.claude.com/docs/en/skills&quot;&gt;code.claude.com/docs&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&quot;related-spring-ai-blogs&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#related-spring-ai-blogs&quot; aria-label=&quot;related spring ai blogs permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Related Spring AI Blogs&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2025/12/11/spring-ai-tool-search-tools-tzolov&quot;&gt;Dynamic Tool Discovery&lt;/a&gt; - Achieve 34-64% token savings with on-demand tool loading&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2025/12/23/spring-ai-tool-argument-augmenter-tzolov&quot;&gt;Tool Argument Augmentation&lt;/a&gt; - Capture LLM reasoning and inner thoughts during tool execution&lt;/li&gt;
 &lt;/ul&gt;</content:encoded></item></channel></rss>

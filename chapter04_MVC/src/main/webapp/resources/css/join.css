@@ -1,0 +1,139 @@
+/* join.css */
+
+:root{
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #222;
+  --muted: #666;
+  --line: #e6e8ee;
+  --primary: #2f6fed;
+  --primary-hover: #2559be;
+  --btn: #eef2ff;
+  --danger: #dc3545;
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+body{
+  margin: 0;
+  color: var(--text);
+  background: var(--bg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+}
+
+/* header/footer가 있는 레이아웃이라면 중앙 정렬용 */
+.panel-body{
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.page-header{
+  max-width: 520px;
+  margin: 32px auto 16px;
+  padding: 0 16px;
+}
+
+.page-header h1{
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+
+/* 카드 */
+.panel-body form{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 18px;
+  box-shadow: var(--shadow);
+}
+
+/* 표를 폼 레이아웃처럼 보이게 */
+.panel-body table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.panel-body th{
+  width: 92px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 6px 8px 6px 0;
+  vertical-align: middle;
+}
+
+.panel-body td{
+  padding: 0;
+}
+
+.panel-body input[type="text"],
+.panel-body input[type="password"]{
+  width: 100%;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.panel-body input[type="text"]:focus,
+.panel-body input[type="password"]:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(47,111,237,.15);
+}
+
+/* 버튼 영역 */
+.panel-body-btns{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* 버튼 공통 */
+.panel-body-btns .btn{
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .05s ease, background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.panel-body-btns .btn:active{
+  transform: translateY(1px);
+}
+
+/* 전송 버튼 */
+.panel-body-btns .btn-sec{
+  background: var(--primary);
+  color: #fff;
+}
+.panel-body-btns .btn-sec:hover{
+  background: var(--primary-hover);
+}
+
+/* 다시 작성 / 목록 이동 */
+.panel-body-btns .btn-fir{
+  background: var(--btn);
+  color: var(--text);
+  border-color: #d9e2ff;
+}
+.panel-body-btns .btn-fir:hover{
+  background: #e4eaff;
+}
+
+/* 모바일 */
+@media (max-width: 420px){
+  .panel-body th{ width: 72px; font-size: 14px; }
+  .panel-body-btns{ flex-direction: column; align-items: stretch; }
+  .panel-body-btns .btn{ width: 100%; }
+}

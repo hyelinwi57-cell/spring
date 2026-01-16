@@ -60,6 +60,7 @@ public class ReplyController {
 	
 	//3. 삭제
 	//reply/:rno - delete
+	@PreAuthorize("isAuthenticated()")
 	@DeleteMapping(value = "{rno}", 
 			produces=MediaType.TEXT_PLAIN_VALUE)
 	public ResponseEntity<String> remove(@PathVariable("rno") int rno){
@@ -71,6 +72,7 @@ public class ReplyController {
 	}
 	
 	//4. 수정
+	@PreAuthorize("isAuthenticated()")
 	@RequestMapping(
 		value = "/{rno}",
 		method = {RequestMethod.PUT, RequestMethod.PATCH},
