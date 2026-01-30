@@ -1,165 +1,784 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Spring]]></title><description><![CDATA[Level up your Java code and explore what Spring can do for you.]]></description><link>https://spring.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 16 Jan 2026 00:41:48 GMT</lastBuildDate><item><title><![CDATA[Spring AI Agentic Patterns (Part 2): AskUserQuestionTool - Agents That Clarify Before Acting]]></title><link>https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool</link><guid isPermaLink="true">https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool</guid><dc:creator><![CDATA[tzolov]]></dc:creator><pubDate>Fri, 16 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;img style=&quot;display: block; margin: auto;&quot; align=&quot;right&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260112/ask-user-question-tool-logo.png&quot; width=&quot;200&quot;&gt;
-&lt;p&gt;Traditional AI interactions follow a common pattern: you provide a prompt, the AI makes assumptions, and produces a response. When those assumptions don&apos;t match your needs, you&apos;re left iterating through corrections. Each assumption creates rework?wasting time and context.&lt;/p&gt;
-&lt;p&gt;What if your AI agent could ask you clarifying questions before providing answers?&lt;/p&gt;
-&lt;p&gt;The &lt;strong&gt;AskUserQuestionTool&lt;/strong&gt; addresses this. It allows the AI agent to ask clarifying questions &lt;em&gt;before&lt;/em&gt; answering, gathers requirements interactively, and creates a specification aligned with your actual needs from the start.&lt;/p&gt;
-&lt;p&gt;Spring AI&apos;s implementation brings this interactive pattern to the Java ecosystem, ensuring LLM portability?define your question handlers once and use them with OpenAI, Anthropic, Google Gemini, or any other supported model.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;This is Part 2 of our Spring AI Agentic Patterns series.&lt;/strong&gt; In &lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills&quot;&gt;Part 1&lt;/a&gt;, we explored Agent Skills?modular capabilities that extend AI functionality. Now we examine AskUserQuestionTool, which transforms AI agents into collaborative partners that gather requirements interactively.&lt;/p&gt;
-&lt;p&gt;? &lt;strong&gt;Want to jump right in?&lt;/strong&gt; Skip to the &lt;a href=&quot;#getting-started&quot;&gt;Getting Started&lt;/a&gt; section.&lt;/p&gt;
-&lt;h2 id=&quot;how-askuserquestiontool-works&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#how-askuserquestiontool-works&quot; aria-label=&quot;how askuserquestiontool works permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;How AskUserQuestionTool Works&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/AskUserQuestionTool.md&quot;&gt;AskUserQuestionTool&lt;/a&gt;, part of the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt; toolkit, is a portable, Spring AI implementation of &lt;a href=&quot;https://platform.claude.com/docs/en/agent-sdk/user-input#question-format&quot;&gt;Claude Code&apos;s AskUserQuestion tool&lt;/a&gt;, enabling AI agents to ask users multiple-choice questions during execution.&lt;/p&gt;
-&lt;img style=&quot;display: block; margin: auto;&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/tzolov/20260112/ask-user-question-tool-flow.png&quot; width=&quot;800&quot;&gt;
-&lt;p&gt;The tool follows a question-answer workflow:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;AI generates questions&lt;/strong&gt; - The agent determines it needs input and constructs questions (each containing question text, header, 2-4 options, and multiSelect flag) and calls the &lt;code&gt;askUserQuestion&lt;/code&gt; tool function&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;User provides answers&lt;/strong&gt; - Your custom handler receives these questions, presents them through your UI, collects answers, and returns them to AI.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Ask additional questions&lt;/strong&gt; - Repeat 1 and 2 if necessary to collect additional user feedback&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;AI continues with context&lt;/strong&gt; - The agent uses the answers to provide tailored solutions&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Each question supports:&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Spring]]></title><description><![CDATA[Level up your Java code and explore what Spring can do for you.]]></description><link>https://spring.io</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 30 Jan 2026 00:47:24 GMT</lastBuildDate><item><title><![CDATA[A Bootiful Podcast: Start Your Year with Java Right with Java Developer Advocate Billy Korando]]></title><link>https://spring.io/blog/2026/01/29/a-bootiful-podcast-billy-korando</link><guid isPermaLink="true">https://spring.io/blog/2026/01/29/a-bootiful-podcast-billy-korando</guid><dc:creator><![CDATA[joshlong]]></dc:creator><pubDate>Thu, 29 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Hi, Spring (and Java) fans! In this episode I am beyond delighted to talk Java developer advocate and longtime friend of the show Billy Korando about the latest-and-greatest in the Java ecosystem.&lt;/p&gt;
+&lt;iframe title=&quot;Start Your Year with Java Right with Java Developer Advocate Billy Korando&quot; allowtransparency=&quot;true&quot; height=&quot;300&quot; width=&quot;100%&quot; style=&quot;border: none; min-width: min(100%, 430px);height:300px;&quot; scrolling=&quot;no&quot; data-name=&quot;pb-iframe-player&quot; src=&quot;https://www.podbean.com/player-v2/?from=embed&amp;i=kj4af-1a30538-pb&amp;square=1&amp;share=1&amp;download=1&amp;fonts=Arial&amp;skin=1&amp;font-color=&amp;rtl=0&amp;logo_link=&amp;btn-skin=7&amp;size=300&quot; loading=&quot;lazy&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content:encoded></item><item><title><![CDATA[Spring AI Agentic Patterns (Part 5): Building Interoperable Agents with the Agent2Agent (A2A) Protocol]]></title><link>https://spring.io/blog/2026/01/29/spring-ai-agentic-patterns-a2a-integration</link><guid isPermaLink="true">https://spring.io/blog/2026/01/29/spring-ai-agentic-patterns-a2a-integration</guid><dc:creator><![CDATA[ilayaperumalg]]></dc:creator><pubDate>Thu, 29 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;img style=&quot;display: block; margin: auto;&quot; align=&quot;right&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/igopinathan/20260129/spring-ai-a2a-logo.png&quot; width=&quot;200&quot;&gt;
+&lt;p&gt;The &lt;strong&gt;Agent2Agent (A2A) Protocol&lt;/strong&gt; is an open standard for seamless AI agent communication. It enables agents to discover capabilities, exchange messages, and coordinate workflows across platforms?regardless of their implementation.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-a2a&quot;&gt;Spring AI A2A&lt;/a&gt;&lt;/strong&gt; integrates the A2A Java SDK with Spring AI through Spring Boot autoconfiguration. It seamlessly connects the A2A protocol with Spring AI&apos;s &lt;code&gt;ChatClient&lt;/code&gt; and tools, enabling you to expose your agents as A2A servers.&lt;/p&gt;
+&lt;p&gt;This post is part of the &lt;strong&gt;Spring AI Agentic Patterns&lt;/strong&gt; series. While previous posts covered making individual agents more capable (&lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills/&quot;&gt;Agent Skills&lt;/a&gt;, &lt;a href=&quot;https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool/&quot;&gt;AskUserQuestionTool&lt;/a&gt;, &lt;a href=&quot;https://spring.io/blog/2026/01/20/spring-ai-agentic-patterns-3-todowrite/&quot;&gt;TodoWriteTool&lt;/a&gt;, &lt;a href=&quot;https://spring.io/blog/2026/01/27/spring-ai-agentic-patterns-4-task-subagents/&quot;&gt;Sub-agent orchestration&lt;/a&gt;), this post shows how the A2A Protocol enables agents to collaborate across system boundaries through practical examples.&lt;/p&gt;
+&lt;h2 id=&quot;agent2agent-a2a-protocol&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#agent2agent-a2a-protocol&quot; aria-label=&quot;agent2agent a2a protocol permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Agent2Agent (A2A) Protocol&lt;/h2&gt;
+&lt;p&gt;The &lt;a href=&quot;https://a2a-protocol.org/&quot;&gt;A2A Protocol&lt;/a&gt; is an open standard for AI agent communication, providing a vendor-neutral foundation that enables agents to discover capabilities, exchange messages, and coordinate workflows. Built on HTTP, SSE, and JSON-RPC standards.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Agent Discovery&lt;/strong&gt; is the foundation of A2A communication. Agents discover each other&apos;s capabilities through the &lt;strong&gt;AgentCard&lt;/strong&gt;?a standardized JSON document exposed at &lt;code&gt;/.well-known/agent-card.json&lt;/code&gt; that describes an agent&apos;s identity, capabilities, and skills. This follows a three-step pattern: &lt;strong&gt;Discovery&lt;/strong&gt; ¡æ &lt;strong&gt;Initiation&lt;/strong&gt; ¡æ &lt;strong&gt;Completion&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The protocol defines two roles: &lt;strong&gt;A2A Server&lt;/strong&gt; agents expose endpoints for discovery and message handling, while &lt;strong&gt;A2A Client&lt;/strong&gt; agents initiate communication by discovering remote agents and sending messages.&lt;/p&gt;
+&lt;p&gt;The &lt;strong&gt;&lt;a href=&quot;https://github.com/a2aproject/a2a-java&quot;&gt;A2A Java SDK&lt;/a&gt;&lt;/strong&gt; provides a Java implementation with server-side components for processing requests and managing tasks, and client-side components for calling remote agents. It supports multiple transports (HTTP, SSE, JSON-RPC) and handles low-level protocol details.&lt;/p&gt;
+&lt;h2 id=&quot;spring-ai-a2a-integration&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#spring-ai-a2a-integration&quot; aria-label=&quot;spring ai a2a integration permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Spring AI A2A Integration&lt;/h2&gt;
+&lt;p&gt;While the A2A Java SDK provides the protocol implementation, integrating it with Spring AI requires additional plumbing. This is where the &lt;strong&gt;Spring AI A2A&lt;/strong&gt; project comes in.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;spring-ai-a2a&lt;/code&gt; project currently focuses on the &lt;strong&gt;server-side integration&lt;/strong&gt;, enabling you to expose your Spring AI agents as A2A-compliant servers.&lt;/p&gt;
+&lt;img style=&quot;display: block; margin: auto;&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/igopinathan/20260129/spring-ai-a2a-integration.png&quot; width=&quot;700&quot;&gt;
+&lt;p&gt;This covers:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Single-select or multi-select&lt;/strong&gt; - Choose one option or combine multiple&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Free-text input&lt;/strong&gt; - Users can always provide custom text beyond predefined options&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Rich context&lt;/strong&gt; - Every option includes a description explaining implications and trade-offs&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Spring Boot Auto-configuration&lt;/strong&gt;: Autoconfigured A2A endpoints&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Spring AI Integration&lt;/strong&gt;: Direct integration with Spring AI&apos;s &lt;code&gt;ChatClient&lt;/code&gt; and &lt;code&gt;tools&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;JSON-RPC Transport via REST Controllers&lt;/strong&gt;: Currently implements JSON-RPC transport for agent communication. Controllers provide endpoints for agent cards and message handling.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;AgentExecutor Implementation&lt;/strong&gt;: &lt;code&gt;DefaultAgentExecutor&lt;/code&gt; that bridges A2A SDK and Spring AI&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;? &lt;strong&gt;Portability and Model Agnostic - No Vendor Lock-In&lt;/strong&gt; - Unlike implementations tied to specific LLM platforms, this Spring AI implementation works across many LLM providers, letting you switch models without rewriting code or question handlers.&lt;/p&gt;
-&lt;p&gt;? &lt;strong&gt;Relation to MCP Elicitation&lt;/strong&gt; - AskUserQuestionTool serves as an agent-local approach to interactive user input, conceptually similar to the &lt;a href=&quot;https://modelcontextprotocol.io/specification/2025-03-26/client/elicitation&quot;&gt;MCP Elicitation&lt;/a&gt; capability. While MCP Elicitation enables MCP servers to request structured user input via JSON schemas, AskUserQuestionTool provides the same interactive pattern directly within your agent without requiring an MCP server. Spring AI also provides &lt;a href=&quot;https://docs.spring.io/spring-ai/reference/api/mcp/mcp-annotations-client.html#_mcpelicitation&quot;&gt;full MCP Elicitation support&lt;/a&gt; via the &lt;code&gt;@McpElicitation&lt;/code&gt; annotation for server-driven scenarios.&lt;/p&gt;
-&lt;h3 id=&quot;example-travel-recommendation-assistant&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-travel-recommendation-assistant&quot; aria-label=&quot;example travel recommendation assistant permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example: Travel Recommendation Assistant&lt;/h3&gt;
-&lt;p&gt;Here&apos;s how the tool works in practice with a travel recommendation use case from the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;USER: What EU country to visit next?
-
-Interests: What are your main interests when traveling?
-  1. History &amp;#x26; Culture - Museums, historical sites, architecture
-  2. Nature &amp;#x26; Outdoors - Hiking, beaches, mountains, national parks
-  3. Food &amp;#x26; Drink - Culinary experiences, wine regions, food tours
-  4. Cities &amp;#x26; Urban - Urban exploration, shopping, nightlife
-  (Enter numbers separated by commas, or type custom text)
-1,2
-
-Season: When are you planning to travel?
-  1. Spring - March to May - Mild temperatures, fewer tourists
-  2. Summer - June to August - Warm weather, peak season
-  3. Fall - September to November - Cooler temps, autumn colors
-  4. Winter - December to February - Christmas markets, winter sports
-  (Enter a number, or type custom text)
-3
-
-Budget: What&apos;s your approximate budget level for this trip?
-  1. ...
-...
-
-ASSISTANT: Based on your preferences for a fall trip with interests in history,
-culture, and nature on a moderate budget, while seeking a mix of popular spots
-and off-the-beaten-path experiences, here are excellent EU countries to consider:
-
-1. **Portugal** - Lisbon&apos;s historic districts, Douro Valley wine harvests,
-   Algarve coastlines. Affordable with pleasant fall temperatures.
-2. **Greece** - Ancient sites, beautiful islands, still warm for swimming
-   in fall with fewer crowds.
-3. **Slovenia** - Lake Bled, Julian Alps, spectacular autumn colors.
-   More affordable than neighboring Austria or Italy.
+&lt;p&gt;Here&apos;s what the integration handles for you:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;// The framework automatically exposes these A2A endpoints (relative to your context path):
+POST   /                                  // Handle JSON-RPC sendMessage requests
+GET    /.well-known/agent-card.json      // Agent card (standard A2A location)
+GET    /card                              // Agent card (alternative endpoint)
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The agent gathered comprehensive requirements through interactive questions before providing personalized recommendations?no assumptions, no iteration needed.&lt;/p&gt;
+&lt;h2 id=&quot;how-it-works&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#how-it-works&quot; aria-label=&quot;how it works permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;How It Works&lt;/h2&gt;
+&lt;img style=&quot;display: block; margin: auto;&quot; src=&quot;https://raw.githubusercontent.com/spring-io/spring-io-static/refs/heads/main/blog/igopinathan/20260129/spring-ai-a2a-flow.png&quot; width=&quot;700&quot;&gt;
+&lt;p&gt;&lt;strong&gt;Step-by-step:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Agent Discovery&lt;/strong&gt; : Before communication begins, the client fetches the server&apos;s &lt;code&gt;AgentCard&lt;/code&gt; from &lt;code&gt;/.well-known/agent-card.json&lt;/code&gt; to discover capabilities, skills, and protocol details&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Request Reception&lt;/strong&gt;: &lt;code&gt;MessageController&lt;/code&gt; receives the A2A JSON-RPC &lt;code&gt;sendMessage&lt;/code&gt; request at the root endpoint&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Execution&lt;/strong&gt;: Routes to your &lt;code&gt;AgentExecutor&lt;/code&gt; bean (Spring AI A2A provides the default implementation: &lt;code&gt;DefaultAgentExecutor&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Handler Invocation&lt;/strong&gt;: The &lt;code&gt;ChatClientExecutorHandler&lt;/code&gt; lambda is invoked with the Spring AI ChatClient and request context&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Spring AI ChatClient Response&lt;/strong&gt;: The Spring AI &lt;code&gt;ChatClient&lt;/code&gt; response is packaged as an A2A JSON-RPC message&lt;/li&gt;
+&lt;/ol&gt;
 &lt;h2 id=&quot;getting-started&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#getting-started&quot; aria-label=&quot;getting started permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Getting Started&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;1. Add the dependency:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Let&apos;s build interoperable agent systems with Spring AI A2A. We&apos;ll start with prerequisites and setup, then work through practical examples: a single-agent server and a multi-agent orchestration.&lt;/p&gt;
+&lt;h3 id=&quot;prerequisites&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#prerequisites&quot; aria-label=&quot;prerequisites permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Prerequisites&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Java 17 or later&lt;/li&gt;
+&lt;li&gt;Spring Boot 4.0.1&lt;/li&gt;
+&lt;li&gt;Spring AI 2.0.0-M2&lt;/li&gt;
+&lt;li&gt;An LLM provider (OpenAI, Anthropic, etc.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;dependencies&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#dependencies&quot; aria-label=&quot;dependencies permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Dependencies&lt;/h3&gt;
+&lt;p&gt;Add the Spring AI A2A starter to your project to expose your Spring AI agent as an A2A server:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-xml&quot;&gt;&amp;#x3C;dependency&gt;
-    &amp;#x3C;groupId&gt;org.springaicommunity&amp;#x3C;/groupId&gt;
-    &amp;#x3C;artifactId&gt;spring-ai-agent-utils&amp;#x3C;/artifactId&gt;
-    &amp;#x3C;version&gt;0.3.0&amp;#x3C;/version&gt;
+   &amp;#x3C;groupId&gt;org.springaicommunity&amp;#x3C;/groupId&gt;
+   &amp;#x3C;artifactId&gt;spring-ai-a2a-server-autoconfigure&amp;#x3C;/artifactId&gt;
+   &amp;#x3C;version&gt;0.2.0&amp;#x3C;/version&gt;
 &amp;#x3C;/dependency&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;strong&gt;2. Configure your agent:&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;ChatClient chatClient = chatClientBuilder
-    .defaultTools(AskUserQuestionTool.builder()
-        .questionHandler(this::handleQuestions)
-        .build())
-    .build();
+&lt;p&gt;This starter includes the A2A Java SDK (v0.3.3.Final) as a transitive dependency.&lt;/p&gt;
+&lt;p&gt;For applications that need to call remote A2A agents, explicitly add the A2A SDK client:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-xml&quot;&gt;&amp;#x3C;dependency&gt;
+   &amp;#x3C;groupId&gt;io.github.a2asdk&amp;#x3C;/groupId&gt;
+   &amp;#x3C;artifactId&gt;a2a-java-sdk-client&amp;#x3C;/artifactId&gt;
+   &amp;#x3C;version&gt;0.3.3.Final&amp;#x3C;/version&gt;
+&amp;#x3C;/dependency&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;strong&gt;3. Implement your &lt;code&gt;QuestionHandler&lt;/code&gt;&lt;/strong&gt; using the console or web examples below.&lt;/p&gt;
-&lt;p&gt;The agent automatically invokes the tool when it needs clarification and uses the answers to provide tailored solutions.&lt;/p&gt;
-&lt;p&gt;? &lt;strong&gt;Demo:&lt;/strong&gt; &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;questionhandler-examples&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#questionhandler-examples&quot; aria-label=&quot;questionhandler examples permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;QuestionHandler Examples&lt;/h3&gt;
-&lt;h4 id=&quot;console-based-questionhandler&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#console-based-questionhandler&quot; aria-label=&quot;console based questionhandler permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Console-Based QuestionHandler&lt;/h4&gt;
-&lt;p&gt;A console-based implementation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;private static Map&amp;#x3C;String, String&gt; handleQuestions(List&amp;#x3C;Question&gt; questions) {
-    Map&amp;#x3C;String, String&gt; answers = new HashMap&amp;#x3C;&gt;();
-    Scanner scanner = new Scanner(System.in);
+&lt;h3 id=&quot;configuration&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#configuration&quot; aria-label=&quot;configuration permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Configuration&lt;/h3&gt;
+&lt;p&gt;Configure your application in &lt;code&gt;application.properties&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-properties&quot;&gt;# Server configuration
+server.servlet.context-path=/weather
 
-    for (Question q : questions) {
-        System.out.println(&quot;\n&quot; + q.header() + &quot;: &quot; + q.question());
+# LLM Configuration (example with Anthropic Claude)
+spring.ai.anthropic.api-key=${ANTHROPIC_API_KEY}
+spring.ai.anthropic.chat.options.model=claude-sonnet-4-5-20250929
 
-        for (int i = 0; i &amp;#x3C; q.options().size(); i++) {
-            Option opt = q.options().get(i);
-            System.out.printf(&quot;  %d. %s - %s%n&quot;, i + 1, opt.label(), opt.description());
-        }
+# For multi-agent orchestration (Example 2), configure remote agent URLs:
+# remote.agents.urls=http://localhost:10001/foo/,http://localhost:10002/bar/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;example-1-agent-server&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-1-agent-server&quot; aria-label=&quot;example 1 agent server permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example 1: Agent Server&lt;/h3&gt;
+&lt;p&gt;Expose a Spring AI application with tools as an A2A server:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;@Configuration
+public class WeatherAgentConfiguration {
 
-        System.out.println(q.multiSelect()
-            ? &quot;  (Enter numbers separated by commas, or type custom text)&quot;
-            : &quot;  (Enter a number, or type custom text)&quot;);
+   @Bean
+   public AgentCard agentCard(@Value(&quot;${server.port:8080}&quot;) int port,
+           @Value(&quot;${server.servlet.context-path:/}&quot;) String contextPath) {
+       // This AgentCard is automatically exposed at /.well-known/agent-card.json
+       // Other agents discover this agent&apos;s capabilities through this endpoint
+       return new AgentCard.Builder()
+           .name(&quot;Weather Agent&quot;)
+           .description(&quot;Provides weather information for cities&quot;)
+           .url(&quot;http://localhost:&quot; + port + contextPath + &quot;/&quot;)
+           .version(&quot;1.0.0&quot;)
+           .capabilities(new AgentCapabilities.Builder().streaming(false).build())
+           .defaultInputModes(List.of(&quot;text&quot;))
+           .defaultOutputModes(List.of(&quot;text&quot;))
+           .skills(List.of(new AgentSkill.Builder()
+               .id(&quot;weather_search&quot;)
+               .name(&quot;Search weather&quot;)
+               .description(&quot;Get temperature for any city&quot;)
+               .tags(List.of(&quot;weather&quot;))
+               .examples(List.of(&quot;What&apos;s the weather in London?&quot;))
+               .build()))
+           .protocolVersion(&quot;0.3.0&quot;)
+           .build();
+   }
 
-        String response = scanner.nextLine().trim();
+   @Bean
+   public AgentExecutor agentExecutor(ChatClient.Builder chatClientBuilder, WeatherTools weatherTools) {
 
-        // Parse numeric selection(s) or use as free text
-        try {
-            String[] parts = response.split(&quot;,&quot;);
-            List&amp;#x3C;String&gt; labels = new ArrayList&amp;#x3C;&gt;();
-            for (String part : parts) {
-                int index = Integer.parseInt(part.trim()) - 1;
-                if (index &gt;= 0 &amp;#x26;&amp;#x26; index &amp;#x3C; q.options().size()) {
-                    labels.add(q.options().get(index).label());
-                }
-            }
-            answers.put(q.question(), labels.isEmpty() ? response : String.join(&quot;, &quot;, labels));
-        } catch (NumberFormatException e) {
-            answers.put(q.question(), response);
-        }
-    }
-    return answers;
+       ChatClient chatClient = chatClientBuilder.clone()
+           .defaultSystem(&quot;You are a weather assistant. Use the temperature tool to answer questions.&quot;)
+           .defaultTools(weatherTools)  // Register Spring AI tools
+           .build();
+
+       return new DefaultAgentExecutor(chatClient, (chat, requestContext) -&gt; {
+           String userMessage = DefaultAgentExecutor.extractTextFromMessage(requestContext.getMessage());
+           return chat.prompt().user(userMessage).call().content();
+       });
+   }
+}
+
+@Service
+class WeatherTools {
+    ...
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The handler displays options, accepts numeric selections (like &quot;1,2&quot;) or free text (like &quot;A moderate budget&quot;), and returns answers to the agent.&lt;/p&gt;
-&lt;h4 id=&quot;web-based-questionhandler&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#web-based-questionhandler&quot; aria-label=&quot;web based questionhandler permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Web-Based QuestionHandler&lt;/h4&gt;
-&lt;p&gt;For web applications, use &lt;code&gt;CompletableFuture&lt;/code&gt; to bridge async UI interactions with the synchronous &lt;code&gt;QuestionHandler&lt;/code&gt; API. Send questions to your frontend via WebSocket/SSE and block on &lt;code&gt;future.get()&lt;/code&gt;. Complete the future when the user submits answers via a REST endpoint.&lt;/p&gt;
-&lt;h2 id=&quot;conclusion&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#conclusion&quot; aria-label=&quot;conclusion permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;&lt;strong&gt;AskUserQuestionTool&lt;/strong&gt; transforms AI agents from assumption-based responders into collaborative partners that gather requirements before acting, delivering answers aligned with your needs on the first attempt.&lt;/p&gt;
-&lt;p&gt;Coming up in this series:&lt;/p&gt;
+&lt;p&gt;Your Spring AI agent is now an A2A-compliant server. Other agents can &lt;strong&gt;discover&lt;/strong&gt; its capabilities through the standard &lt;code&gt;/.well-known/agent-card.json&lt;/code&gt; endpoint and then send weather queries via POST to the root endpoint. The autoconfiguration handles exposing both the AgentCard and message endpoints.&lt;/p&gt;
+&lt;h3 id=&quot;example-2-agent-client&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-2-agent-client&quot; aria-label=&quot;example 2 agent client permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example 2: Agent Client&lt;/h3&gt;
+&lt;p&gt;Here&apos;s a practical example of an agent client: A host agent that orchestrates specialized agents for travel planning (Airbnb accommodations and weather information).&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;@Service
+public class RemoteAgentConnections {
+
+   private final Map&amp;#x3C;String, AgentCard&gt; agentCards = new HashMap&amp;#x3C;&gt;();
+
+   public RemoteAgentConnections(@Value(&quot;${remote.agents.urls}&quot;) List&amp;#x3C;String&gt; agentUrls) {
+       // Discover remote agents at startup (see Agent Discovery section above)
+       for (String url : agentUrls) {
+           String path = new URI(url).getPath();
+           AgentCard card = A2A.getAgentCard(url, path + &quot;.well-known/agent-card.json&quot;, null);
+           this.agentCards.put(card.name(), card);
+       }
+   }
+
+   @Tool(description = &quot;Sends a task to a remote agent. Use this to delegate work to specialized agents.&quot;)
+   public String sendMessage(
+           @ToolParam(description = &quot;The name of the agent&quot;) String agentName,
+           @ToolParam(description = &quot;The task description to send&quot;) String task) {
+
+       AgentCard agentCard = this.agentCards.get(agentName);
+
+       // Create A2A message
+       Message message = new Message.Builder()
+           .role(Message.Role.USER)
+           .parts(List.of(new TextPart(task, null)))
+           .build();
+
+       // Use A2A Java SDK Client
+       CompletableFuture&amp;#x3C;String&gt; responseFuture = new CompletableFuture&amp;#x3C;&gt;();
+
+       Client client = Client.builder(agentCard)
+           .clientConfig(new ClientConfig.Builder()
+               .setAcceptedOutputModes(List.of(&quot;text&quot;))
+               .build())
+           .withTransport(JSONRPCTransport.class, new JSONRPCTransportConfig())
+           .addConsumers(List.of(consumer -&gt; {
+               if (consumer instanceof TextPart textPart) {
+                   responseFuture.complete(textPart.getText());
+               }
+           }))
+           .build();
+
+       client.sendMessage(message);
+       return responseFuture.get(60, TimeUnit.SECONDS);
+   }
+
+   public String getAgentDescriptions() {
+       return agentCards.values().stream()
+           .map(card -&gt; card.name() + &quot;: &quot; + card.description())
+           .collect(Collectors.joining(&quot;\n&quot;));
+   }
+}
+
+@Configuration
+public class HostAgentConfiguration {
+
+   @Bean
+   public ChatClient routingChatClient(ChatClient.Builder chatClientBuilder,
+           RemoteAgentConnections remoteAgentConnections) {
+
+       String systemPrompt = &quot;&quot;&quot;
+           You coordinate tasks across specialized agents.
+           Available agents:
+           %s
+           Use the sendMessage tool to delegate tasks to the appropriate agent.
+           &quot;&quot;&quot;.formatted(remoteAgentConnections.getAgentDescriptions());
+
+       return chatClientBuilder
+           .defaultSystem(systemPrompt)
+           .defaultTools(remoteAgentConnections)  // Register as Spring AI tool
+           .build();
+   }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;What&apos;s happening here:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The host agent (client) &lt;strong&gt;discovers&lt;/strong&gt; remote agents at startup by fetching their &lt;code&gt;AgentCard&lt;/code&gt; from the standard &lt;code&gt;.well-known/agent-card.json&lt;/code&gt; endpoints&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RemoteAgentConnections&lt;/code&gt; is registered as a Spring AI &lt;code&gt;@Tool&lt;/code&gt; with the &lt;code&gt;ChatClient&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;When a user asks &quot;Plan a trip to London&quot;, the LLM decides which agents to call via the &lt;code&gt;sendMessage&lt;/code&gt; tool&lt;/li&gt;
+&lt;li&gt;The tool uses the &lt;strong&gt;A2A Java SDK Client&lt;/strong&gt; to communicate with remote agents&lt;/li&gt;
+&lt;li&gt;Results are aggregated and returned to the user&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This pattern enables LLM-driven routing?the model decides which specialized agents to invoke based on the user&apos;s query.&lt;/p&gt;
+&lt;h2 id=&quot;whats-next&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#whats-next&quot; aria-label=&quot;whats next permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;What&apos;s Next&lt;/h2&gt;
+&lt;p&gt;While the current release focuses on server-side integration, the Spring AI community is exploring opportunities to enhance the A2A client experience for Spring AI applications.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Potential Future Enhancements:&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Task Management with TodoWriteTool&lt;/strong&gt; - Track multi-step workflows transparently&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Hierarchical Sub-Agents&lt;/strong&gt; - Build complex multi-agent architectures with specialized sub-agents&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Security&lt;/strong&gt;: Support for A2A authentication and authorization&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Agent Discovery&lt;/strong&gt;: Spring Boot autoconfiguration for discovering and routing to A2A agents&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Client Auto-configuration&lt;/strong&gt;: Autoconfigured A2A client connections with Spring-friendly abstractions&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Multiple Transport Support&lt;/strong&gt;: SSE (Server-Sent Events) for real-time streaming responses, expanding beyond the current JSON-RPC implementation&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Enhanced Observability&lt;/strong&gt;: Spring Boot Actuator integration for monitoring A2A interactions&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Start experimenting with the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;These enhancements would provide additional support for building Spring AI applications that act as A2A agent clients, providing consistent integration patterns for both client and server implementations.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Want to contribute?&lt;/strong&gt; The Spring AI A2A project welcomes community contributions. Check out the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-a2a&quot;&gt;GitHub repository&lt;/a&gt; to get involved.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#conclusion&quot; aria-label=&quot;conclusion permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;The A2A Protocol represents a significant step toward interoperable AI agent ecosystems. By standardizing how agents communicate, it removes barriers to building sophisticated multi-agent systems.&lt;/p&gt;
+&lt;p&gt;The Spring AI A2A community project provides the integration needed to participate in this ecosystem. Through Spring Boot autoconfiguration, you can expose your Spring AI agents as A2A servers, integrate with other A2A-compliant agents, and build orchestration patterns that leverage Spring Boot&apos;s conventions.&lt;/p&gt;
+&lt;p&gt;As the A2A ecosystem grows, more agents, tools, and platforms may adopt this standard, expanding options for agent collaboration and composition.&lt;/p&gt;
+&lt;p&gt;To begin integrating A2A Protocol support with your Spring AI agents, refer to the resources below.&lt;/p&gt;
 &lt;h2 id=&quot;resources&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#resources&quot; aria-label=&quot;resources permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Resources&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;GitHub Repository&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;AskUserQuestionTool Documentation&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/blob/main/spring-ai-agent-utils/docs/AskUserQuestionTool.md&quot;&gt;AskUserQuestionTool&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Spring AI Documentation&lt;/strong&gt;: &lt;a href=&quot;https://docs.spring.io/spring-ai/reference/&quot;&gt;docs.spring.io/spring-ai&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Demo&lt;/strong&gt;: &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils/tree/main/examples/ask-user-question-demo&quot;&gt;ask-user-question-demo&lt;/a&gt; - Console-based interactive questioning (this post)&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Claude Agent SDK&lt;/strong&gt;: &lt;a href=&quot;https://platform.claude.com/docs/en/agent-sdk/user-input#question-format&quot;&gt;User Input Documentation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://a2a-protocol.org/&quot;&gt;A2A Protocol Specification&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/a2aproject/a2a-java&quot;&gt;A2A Java SDK&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-a2a&quot;&gt;Spring AI A2A Community Project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://docs.spring.io/spring-ai/reference/&quot;&gt;Spring AI Documentation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-a2a/tree/main/spring-ai-a2a-examples/airbnb-planner&quot;&gt;Example: Travel Planner Multi-Agent System&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;series-links&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#series-links&quot; aria-label=&quot;series links permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Series Links&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Part 1&lt;/strong&gt;: &lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills&quot;&gt;Agent Skills&lt;/a&gt; - Modular, reusable capabilities&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 2&lt;/strong&gt;: &lt;a href=&quot;https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool&quot;&gt;AskUserQuestionTool&lt;/a&gt; - Interactive workflows&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 3&lt;/strong&gt;: &lt;a href=&quot;https://spring.io/blog/2026/01/20/spring-ai-agentic-patterns-3-todowrite/&quot;&gt;TodoWriteTool&lt;/a&gt; - Structured planning&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 4&lt;/strong&gt;: &lt;a href=&quot;https://spring.io/blog/2026/01/27/spring-ai-agentic-patterns-4-task-subagents&quot;&gt;Subagent Orchestration&lt;/a&gt; - Hierarchical agent architectures&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 5&lt;/strong&gt;: A2A Integration (this post) - Building interoperable agents with the Agent2Agent protocol&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part (soon)&lt;/strong&gt;: Subagent Extension Framework (coming soon) - Protocol-agnostic agent orchestration&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4 id=&quot;related-spring-ai-blogs&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#related-spring-ai-blogs&quot; aria-label=&quot;related spring ai blogs permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Related Spring AI Blogs&lt;/h4&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills&quot;&gt;Agent Skills - Modular Capabilities&lt;/a&gt; - Part 1 of this series&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2025/12/11/spring-ai-tool-search-tools-tzolov&quot;&gt;Dynamic Tool Discovery&lt;/a&gt; - Achieve 34-64% token savings&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2025/12/23/spring-ai-tool-argument-augmenter-tzolov&quot;&gt;Tool Argument Augmentation&lt;/a&gt; - Capture LLM reasoning during tool execution&lt;/li&gt;
-&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Spring Framework 7.0.3 Available Now]]></title><link>https://spring.io/blog/2026/01/15/spring-framework-7-0-3-available-now</link><guid isPermaLink="true">https://spring.io/blog/2026/01/15/spring-framework-7-0-3-available-now</guid><dc:creator><![CDATA[bclozel]]></dc:creator><pubDate>Thu, 15 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;On behalf of the team and everyone who has contributed, I am pleased to announce that Spring Framework &lt;code&gt;7.0.3&lt;/code&gt; is available now.&lt;/p&gt;
-&lt;p&gt;Spring Framework &lt;code&gt;7.0.3&lt;/code&gt; ships with &lt;a href=&quot;https://github.com/spring-projects/spring-framework/releases/tag/v7.0.3&quot;&gt;65 fixes and documentation improvements&lt;/a&gt;.
-This version will be shipped next week with Spring Boot &lt;code&gt;4.0.2&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;This release brings a noteworthy change - Spring Framework will now lazily pause an unused test &lt;code&gt;ApplicationContext&lt;/code&gt; the 1st time a different context is used.
-You can override this behavior by setting the &lt;code&gt;spring.test.context.cache.pause&lt;/code&gt; property to &lt;code&gt;ALWAYS&lt;/code&gt;, or disable pausing altogether by setting that to &lt;code&gt;NEVER&lt;/code&gt;.
-Check out the &lt;a href=&quot;https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes#pausing-of-test-application-contexts&quot;&gt;release notes&lt;/a&gt;
-and &lt;a href=&quot;https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/ctx-management/context-pausing.html&quot;&gt;reference documentation&lt;/a&gt;
-to learn more about test context pausing.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://spring.io/projects/spring-framework/&quot;&gt;Project Page&lt;/a&gt; | &lt;a href=&quot;https://github.com/spring-projects/spring-framework&quot;&gt;GitHub&lt;/a&gt; | &lt;a href=&quot;https://github.com/spring-projects/spring-framework/issues&quot;&gt;Issues&lt;/a&gt; | &lt;a href=&quot;https://docs.spring.io/spring-framework/reference/&quot;&gt;Documentation&lt;/a&gt;&lt;/p&gt;</content:encoded></item><item><title><![CDATA[A Bootiful Podcast: Jonatan Ivanov on how to measure all the things with Micrometer]]></title><link>https://spring.io/blog/2026/01/15/a-bootiful-podcast-jonatan-ivanov</link><guid isPermaLink="true">https://spring.io/blog/2026/01/15/a-bootiful-podcast-jonatan-ivanov</guid><dc:creator><![CDATA[joshlong]]></dc:creator><pubDate>Thu, 15 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Hi, Spring fans! This week we catch up with the observably awesome Jonatan Ivanov on how to measure all the things with Micrometer&lt;/p&gt;
-&lt;iframe title=&quot;Jonatan Ivanov on how to measure all the things with Micrometer &quot; allowtransparency=&quot;true&quot; height=&quot;300&quot; width=&quot;100%&quot; style=&quot;border: none; min-width: min(100%, 430px);height:300px;&quot; scrolling=&quot;no&quot; data-name=&quot;pb-iframe-player&quot; src=&quot;https://www.podbean.com/player-v2/?from=embed&amp;i=wd37a-1a1af42-pb&amp;square=1&amp;share=1&amp;download=1&amp;fonts=Arial&amp;skin=1&amp;font-color=&amp;rtl=0&amp;logo_link=&amp;btn-skin=7&amp;size=300&quot; loading=&quot;lazy&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;</content:encoded></item><item><title><![CDATA[This Week in Spring - January 13th, 2026 ]]></title><link>https://spring.io/blog/2026/01/13/this-week-in-spring-january-13th-2026</link><guid isPermaLink="true">https://spring.io/blog/2026/01/13/this-week-in-spring-january-13th-2026</guid><dc:creator><![CDATA[joshlong]]></dc:creator><pubDate>Tue, 13 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Hi, Spring fans, and welcome to another installment of &lt;em&gt;This Week in Spring&lt;/em&gt;! It&apos;s the 13th of January, 2026, and it&apos;s been quite the week indeed! Let&apos;s dive right into it!&lt;/p&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[Spring Cloud 2025.1.1 (aka Oakwood) Has Been Released]]></title><link>https://spring.io/blog/2026/01/29/spring-cloud-2025-1-1-aka-oakwood-has-been-released</link><guid isPermaLink="true">https://spring.io/blog/2026/01/29/spring-cloud-2025-1-1-aka-oakwood-has-been-released</guid><dc:creator><![CDATA[ryanjbaxter]]></dc:creator><pubDate>Thu, 29 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;On behalf of the community, I am pleased to announce that the General Availability (RELEASE) of the &lt;a href=&quot;https://cloud.spring.io&quot;&gt;Spring Cloud 2025.1.1&lt;/a&gt; Release Train is available today. The release can be found in &lt;a href=&quot;https://repo1.maven.org/maven2/org/springframework/cloud/spring-cloud-dependencies/2025.1.1/&quot;&gt;Maven Central&lt;/a&gt;. You can check out the 2025.1.1 &lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-release/wiki/Spring-Cloud-2025.1-Release-Notes&quot;&gt;release notes for more information&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;notable-changes-in-the-202511-release-train&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#notable-changes-in-the-202511-release-train&quot; aria-label=&quot;notable changes in the 202511 release train permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Notable Changes in the 2025.1.1 Release Train&lt;/h2&gt;
+&lt;p&gt;Spring Cloud 2025.0.0 is incompatible with Spring Boot 4.0.1 and later 4.0.x releases due to changes in Spring Boot.  This Spring Cloud release introduces compatibility with Spring Boot 4.0.1 and later 4.0.x release for the 2025.1.x Spring Cloud release train.&lt;/p&gt;
+&lt;h3 id=&quot;spring-cloud-kubernetes&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#spring-cloud-kubernetes&quot; aria-label=&quot;spring cloud kubernetes permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Spring Cloud Kubernetes&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Nobody, and I mean &lt;em&gt;nobody&lt;/em&gt;, asked. So I put together a video on how to use Spring WS to build SOAP-based services in 2026. Hey, SOAP may be legacy but the legacy endures in a lot of places and there&apos;s no reason you can&apos;t modernize those systems and services to use Spring Boot 4, GraalVM, and OAuth, as &lt;a href=&quot;https://www.youtube.com/watch?v=am30wQDzqEY&amp;#x26;t=1s&quot;&gt;I show in this video&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;In last week&apos;s installment of &lt;em&gt;A Bootiful Podcast&lt;/em&gt;, I talked to &lt;a href=&quot;https://spring.io/blog/2026/01/08/a-bootiful-podcast-rob-winch&quot;&gt;Spring Security lead Rob Winch on Spring Security 7&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/07/spring-grpc-1&quot;&gt;Spring gRPC 1.0.1 is available now&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;I love this blog from Embabel creator Rod Johnson: &lt;a href=&quot;https://medium.com/@springrod/rethinking-rag-pipelines-are-the-past-agentic-is-the-future-77c887414621&quot;&gt;RAG pipelines are the past, agentic is the future&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;I know this doesn&apos;t have anything to do with Spring, per se, but I find it &lt;a href=&quot;https://www.baeldung.com/maven-4-upgrades&quot;&gt;very useful: What&apos;s New in Maven 4&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;I&apos;m so pleased my article on &lt;a href=&quot;https://www.linkedin.com/posts/infoq_java-infoq-stayahead-activity-7415359109044273152-H9aT?rcm=ACoAAACXdIABb8VbfXttpb7WA9oliQsXOS5rEgw&quot;&gt;Spring AI is in the top five must-read articles on InfoQ for 2025&lt;/a&gt;: thank you!&lt;/li&gt;
-&lt;li&gt;Speaking of, here&apos;s the article itself: &lt;a href=&quot;https://www.infoq.com/articles/spring-ai-1-0/?utm_source=linkedin&amp;#x26;utm_medium=link&amp;#x26;utm_campaign=calendar&quot;&gt;Spring AI delivers easy AI Systems and Services&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;InfoQ also have a really good article on what&apos;s new and novel in &lt;a href=&quot;https://medium.com/@sunil17bbmp/spring-boot-4-0-spring-framework-7-whats-new-and-what-s-next-5f4da77c525e&quot;&gt;Spring Boot 4 and Spring Framework 7&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;I don&apos;t know if this is AI slop. But it&apos;s interesting: &lt;a href=&quot;https://medium.com/engineering-playbook/fastapi-vs-spring-boot-i-tested-both-for-6-months-in-production-96c04f7ebabe&quot;&gt;FastAPI vs Spring Boot: I tested both for six months&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;the &lt;a href=&quot;https://piotrminkowski.com/2026/01/06/istio-spring-boot-library-released/&quot;&gt;Istio Spring Boot integration has been released&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Cool! The &lt;a href=&quot;https://github.com/Kotlin/Kotlin-AI-Examples/blob/master/notebooks/spring-ai/tutorials/2.%20Prompts.ipynb&quot;&gt;Kotlin AI examples notebooks use Spring AI, too!&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content:encoded></item></channel></rss>
+&lt;li&gt;New leader election implementations for the Kubernetes Java Client (&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-kubernetes/pull/2107&quot;&gt;#2107&lt;/a&gt;) and Fabric8 Client (&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-kubernetes/pull/2108&quot;&gt;#2108&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The following modules were updated as part of 2025.1.1:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Module&lt;/th&gt;
+&lt;th&gt;Version&lt;/th&gt;
+&lt;th&gt;Issues&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Netflix&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-netflix/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Stream&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-stream/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Consul&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-consul/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Circuitbreaker&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-circuitbreaker/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Starter Build&lt;/td&gt;
+&lt;td&gt;2025.1.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-starter-build/releases/tag/v2025.1.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Config&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-config/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Build&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-build/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Gateway&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-gateway/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Bus&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-bus/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Vault&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-vault/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Contract&lt;/td&gt;
+&lt;td&gt;5.0.2&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-contract/releases/tag/v5.0.2&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Function&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-function/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Task&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-task/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Kubernetes&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-kubernetes/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Commons&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-commons/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Openfeign&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-openfeign/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Spring Cloud Zookeeper&lt;/td&gt;
+&lt;td&gt;5.0.1&lt;/td&gt;
+&lt;td&gt;(&lt;a href=&quot;https://github.com/spring-cloud/spring-cloud-zookeeper/releases/tag/v5.0.1&quot;&gt;issues&lt;/a&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;As always, we welcome feedback on &lt;a href=&quot;https://github.com/spring-cloud/&quot;&gt;GitHub&lt;/a&gt;, on &lt;a href=&quot;https://gitter.im/spring-cloud/spring-cloud&quot;&gt;Gitter&lt;/a&gt;, on &lt;a href=&quot;https://stackoverflow.com/questions/tagged/spring-cloud&quot;&gt;Stack Overflow&lt;/a&gt;, or on &lt;a href=&quot;https://twitter.com/SpringCloud&quot;&gt;Twitter&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;To get started with Maven with a BOM (dependency management only):&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+&amp;#x3C;dependencyManagement&gt;
+    &amp;#x3C;dependencies&gt;
+        &amp;#x3C;dependency&gt;
+            &amp;#x3C;groupId&gt;org.springframework.cloud&amp;#x3C;/groupId&gt;
+            &amp;#x3C;artifactId&gt;spring-cloud-dependencies&amp;#x3C;/artifactId&gt;
+            &amp;#x3C;version&gt;2025.1.1&amp;#x3C;/version&gt;
+            &amp;#x3C;type&gt;pom&amp;#x3C;/type&gt;
+            &amp;#x3C;scope&gt;import&amp;#x3C;/scope&gt;
+        &amp;#x3C;/dependency&gt;
+    &amp;#x3C;/dependencies&gt;
+&amp;#x3C;/dependencyManagement&gt;
+&amp;#x3C;dependencies&gt;
+    &amp;#x3C;dependency&gt;
+        &amp;#x3C;groupId&gt;org.springframework.cloud&amp;#x3C;/groupId&gt;
+        &amp;#x3C;artifactId&gt;spring-cloud-starter-config&amp;#x3C;/artifactId&gt;
+    &amp;#x3C;/dependency&gt;
+    &amp;#x3C;dependency&gt;
+        &amp;#x3C;groupId&gt;org.springframework.cloud&amp;#x3C;/groupId&gt;
+        &amp;#x3C;artifactId&gt;spring-cloud-starter-netflix-eureka-client&amp;#x3C;/artifactId&gt;
+    &amp;#x3C;/dependency&gt;
+    ...
+&amp;#x3C;/dependencies&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;or with Gradle:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;buildscript {
+dependencies {
+classpath &quot;io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE&quot;
+}
+}
+
+
+
+apply plugin: &quot;io.spring.dependency-management&quot;
+
+dependencyManagement {
+imports {
+mavenBom &apos;org.springframework.cloud:spring-cloud-dependencies:2025.1.1&apos;
+}
+}
+
+dependencies {
+compile &apos;org.springframework.cloud:spring-cloud-starter-config&apos;
+compile &apos;org.springframework.cloud:spring-cloud-starter-netflix-eureka-client&apos;
+...
+}
+&lt;/code&gt;&lt;/pre&gt;</content:encoded></item><item><title><![CDATA[Anthropic Agent Skills Support in Spring AI]]></title><link>https://spring.io/blog/2026/01/28/apring-ai-anthropic-agentic-skills</link><guid isPermaLink="true">https://spring.io/blog/2026/01/28/apring-ai-anthropic-agentic-skills</guid><dc:creator><![CDATA[sobychacko]]></dc:creator><pubDate>Wed, 28 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;In this blog, we show how using Spring AI, we can integrate with Anthropic&apos;s Native Skills API for Cloud-Based Document Generation and Custom Skills.&lt;/p&gt;
+&lt;p&gt;Spring AI adds support for Anthropic&apos;s &lt;a href=&quot;https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview&quot;&gt;Agent Skills&lt;/a&gt; ? modular capabilities that let Claude generate actual files rather than text descriptions. With Skills enabled, Claude produces real Excel spreadsheets, PowerPoint presentations, Word documents, and PDFs that you can download and use directly.&lt;/p&gt;
+&lt;p&gt;This post covers how Spring AI integrates with Skills, including both pre-built Skills and Custom Skills for organization-specific document generation.&lt;/p&gt;
+&lt;h2 id=&quot;limitations&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#limitations&quot; aria-label=&quot;limitations permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Limitations&lt;/h2&gt;
+&lt;p&gt;This Skills implementation is specific to Anthropic&apos;s Claude models:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Not portable&lt;/strong&gt;: Skills require Anthropic&apos;s code execution and Files API infrastructure. They won&apos;t work with other providers (OpenAI, Gemini, etc.)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Anthropic-specific classes&lt;/strong&gt;: Uses &lt;code&gt;AnthropicChatOptions&lt;/code&gt;, &lt;code&gt;AnthropicSkill&lt;/code&gt;, &lt;code&gt;AnthropicSkillsResponseHelper&lt;/code&gt;?not Spring AI&apos;s generic interfaces&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Model restrictions&lt;/strong&gt;: Only Claude Sonnet 4, Sonnet 4.5, and Opus 4 support Skills&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;File expiration&lt;/strong&gt;: Generated files expire after 24 hours in Anthropic&apos;s Files API&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Beta feature&lt;/strong&gt;: Skills API requires beta headers and may evolve&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;when-to-use-anthropic-skills-vs-generic-agent-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#when-to-use-anthropic-skills-vs-generic-agent-skills&quot; aria-label=&quot;when to use anthropic skills vs generic agent skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;When to Use Anthropic Skills vs. Generic Agent Skills&lt;/h2&gt;
+&lt;p&gt;Spring AI supports two different approaches to Agent Skills:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Use Anthropic&apos;s native Skills API when:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;You need the pre-built document generation skills (Excel, PowerPoint, Word, PDF)&lt;/li&gt;
+&lt;li&gt;You want skills to run in a sandboxed, secure cloud environment&lt;/li&gt;
+&lt;li&gt;You need workspace-scoped skills shared across your team&lt;/li&gt;
+&lt;li&gt;You&apos;re committed to using Claude models&lt;/li&gt;
+&lt;li&gt;You want Anthropic to manage the execution infrastructure&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Use Generic Agent Skills (&lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt;) when:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;You need skills that work across multiple LLM providers (OpenAI, Anthropic, Gemini, etc.)&lt;/li&gt;
+&lt;li&gt;Your skills need access to local resources, network, or custom packages&lt;/li&gt;
+&lt;li&gt;You want skills bundled and versioned with your application code&lt;/li&gt;
+&lt;li&gt;You need more control over the execution environment&lt;/li&gt;
+&lt;li&gt;Portability and avoiding vendor lock-in are priorities&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Can you use both?&lt;/strong&gt; Yes. You can use Anthropic&apos;s native Skills for document generation while using Generic Agent Skills for other portable capabilities in the same application. They serve different purposes and can complement each other.&lt;/p&gt;
+&lt;p&gt;See the &lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills&quot;&gt;Generic Agent Skills blog post&lt;/a&gt; for details on the portable approach.&lt;/p&gt;
+&lt;h2 id=&quot;why-use-spring-ai-for-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#why-use-spring-ai-for-skills&quot; aria-label=&quot;why use spring ai for skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Why Use Spring AI for Skills&lt;/h2&gt;
+&lt;p&gt;Using Skills via the raw Anthropic API requires several manual steps:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Adding the &lt;code&gt;code_execution&lt;/code&gt; tool to every request (Skills require it)&lt;/li&gt;
+&lt;li&gt;Including three beta headers: &lt;code&gt;skills-2025-10-02&lt;/code&gt;, &lt;code&gt;code-execution-2025-08-25&lt;/code&gt;, &lt;code&gt;files-api-2025-04-14&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Parsing deeply nested JSON responses to find file IDs&lt;/li&gt;
+&lt;li&gt;Making separate HTTP calls to download generated files&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Spring AI handles all of this automatically. When you add a Skill to your request, Spring AI:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Auto-injects the code execution tool&lt;/strong&gt; - Skills run Python scripts server-side; we add the required tool configuration&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Manages beta headers&lt;/strong&gt; - All three required headers are added automatically and merge correctly with other features like prompt caching&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Provides type-safe enums&lt;/strong&gt; - &lt;code&gt;AnthropicSkill.XLSX&lt;/code&gt; instead of magic strings&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Validates at build time&lt;/strong&gt; - The 8-skill limit is enforced when you build your options, not when the API call fails&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Extracts file IDs&lt;/strong&gt; - &lt;code&gt;AnthropicSkillsResponseHelper&lt;/code&gt; recursively searches nested response structures&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Integrates Files API&lt;/strong&gt; - Download generated files with &lt;code&gt;anthropicApi.downloadFile()&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;pre-built-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#pre-built-skills&quot; aria-label=&quot;pre built skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Pre-built Skills&lt;/h2&gt;
+&lt;p&gt;Anthropic provides four pre-built Skills:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Skill&lt;/th&gt;
+&lt;th&gt;Output&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;XLSX&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Excel spreadsheets with data, formulas, charts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;PPTX&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;PowerPoint presentations with slides and layouts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;DOCX&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Word documents with formatting&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;PDF&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;PDF reports and documents&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;When you enable a Skill, Claude handles both content decisions and technical implementation. The response contains a file ID pointing to the generated document in Anthropic&apos;s Files API.&lt;/p&gt;
+&lt;h3 id=&quot;basic-usage&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#basic-usage&quot; aria-label=&quot;basic usage permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Basic Usage&lt;/h3&gt;
+&lt;p&gt;Enable Skills through &lt;code&gt;AnthropicChatOptions&lt;/code&gt; using the unified &lt;code&gt;skill()&lt;/code&gt; method:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;ChatResponse response = chatModel.call(
+    new Prompt(
+        &quot;Create an Excel spreadsheet with Q1 2025 sales data. &quot; +
+        &quot;Include columns for Product, Units Sold, and Revenue.&quot;,
+        AnthropicChatOptions.builder()
+            .model(&quot;claude-sonnet-4-5&quot;)
+            .skill(AnthropicSkill.XLSX)
+            .maxTokens(4096)
+            .build()
+    )
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Behind the scenes, Spring AI adds the code execution tool and required beta headers. Claude processes the request, generates the spreadsheet, and returns a response containing a file ID.&lt;/p&gt;
+&lt;h3 id=&quot;multiple-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#multiple-skills&quot; aria-label=&quot;multiple skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Multiple Skills&lt;/h3&gt;
+&lt;p&gt;Enable multiple Skills for complex workflows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;AnthropicChatOptions.builder()
+    .model(&quot;claude-sonnet-4-5&quot;)
+    .skill(AnthropicSkill.XLSX)
+    .skill(AnthropicSkill.PPTX)
+    .maxTokens(8192)
+    .build()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Or use the &lt;code&gt;skills()&lt;/code&gt; convenience method:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;AnthropicChatOptions.builder()
+    .model(&quot;claude-sonnet-4-5&quot;)
+    .skills(&quot;xlsx&quot;, &quot;pptx&quot;)
+    .maxTokens(8192)
+    .build()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Claude decides which format suits each part of the output. Maximum 8 Skills per request?enforced at build time with a clear error message.&lt;/p&gt;
+&lt;h3 id=&quot;chatclient-api&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#chatclient-api&quot; aria-label=&quot;chatclient api permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;ChatClient API&lt;/h3&gt;
+&lt;p&gt;Skills work with Spring AI&apos;s fluent ChatClient:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;String content = ChatClient.create(chatModel)
+    .prompt()
+    .user(&quot;Create a Word document with our product roadmap&quot;)
+    .options(AnthropicChatOptions.builder()
+        .model(&quot;claude-sonnet-4-5&quot;)
+        .skill(AnthropicSkill.DOCX)
+        .maxTokens(4096)
+        .build())
+    .call()
+    .content();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;downloading-generated-files&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#downloading-generated-files&quot; aria-label=&quot;downloading generated files permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Downloading Generated Files&lt;/h2&gt;
+&lt;p&gt;Generated files live in Anthropic&apos;s Files API for 24 hours. We provide &lt;code&gt;AnthropicSkillsResponseHelper&lt;/code&gt; to extract file IDs and &lt;code&gt;AnthropicApi&lt;/code&gt; for file operations.&lt;/p&gt;
+&lt;p&gt;When Claude generates files, the file IDs are embedded in a nested response structure?sometimes 4 levels deep. &lt;code&gt;AnthropicSkillsResponseHelper&lt;/code&gt; handles this with a recursive search that finds file IDs at any depth.&lt;/p&gt;
+&lt;h3 id=&quot;extract-and-download&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#extract-and-download&quot; aria-label=&quot;extract and download permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Extract and Download&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;List&amp;#x3C;String&gt; fileIds = AnthropicSkillsResponseHelper.extractFileIds(response);
+
+for (String fileId : fileIds) {
+    FileMetadata metadata = anthropicApi.getFileMetadata(fileId);
+    byte[] content = anthropicApi.downloadFile(fileId);
+
+    Files.write(Path.of(metadata.filename()), content);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;batch-download&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#batch-download&quot; aria-label=&quot;batch download permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Batch Download&lt;/h3&gt;
+&lt;p&gt;For responses with multiple files:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;Path targetDir = Path.of(&quot;generated-docs&quot;);
+List&amp;#x3C;Path&gt; savedFiles = AnthropicSkillsResponseHelper.downloadAllFiles(
+    response, anthropicApi, targetDir
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;custom-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#custom-skills&quot; aria-label=&quot;custom skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Custom Skills&lt;/h2&gt;
+&lt;p&gt;Custom Skills let you package your own instructions into reusable modules that Claude applies during document generation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Corporate branding (headers, footers, watermarks, logos)&lt;/li&gt;
+&lt;li&gt;Compliance requirements (disclaimers, confidentiality notices)&lt;/li&gt;
+&lt;li&gt;Document templates (standard structures, formatting rules)&lt;/li&gt;
+&lt;li&gt;Domain expertise (industry terminology, specialized calculations)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Custom Skills are &lt;code&gt;SKILL.md&lt;/code&gt; files uploaded to your Anthropic workspace. Once uploaded, they&apos;re available to all workspace members and can be combined with any pre-built Skill.&lt;/p&gt;
+&lt;h3 id=&quot;skill-structure&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#skill-structure&quot; aria-label=&quot;skill structure permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Skill Structure&lt;/h3&gt;
+&lt;p&gt;Every Skill requires a &lt;code&gt;SKILL.md&lt;/code&gt; file with YAML frontmatter:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;---
+name: document-watermark
+description: MANDATORY branding that MUST be added to ALL generated documents -
+  adds ACME CORPORATION header and Document Forge footer
+---
+
+# Document Watermark
+
+## Header Requirement
+Add &quot;ACME CORPORATION&quot; prominently at the top of every document:
+- **Excel**: Cell A1, bold, merged across data columns
+- **PowerPoint**: First slide header, all slides footer
+- **Word/PDF**: Document header section
+
+## Footer Requirement
+Add &quot;Generated by Document Forge | Confidential&quot; at the bottom:
+- **Excel**: Row below last data row
+- **PowerPoint**: Footer on all slides
+- **Word/PDF**: Document footer section
+
+## Verification
+Before completing any document:
+1. Confirm ACME CORPORATION header is present
+2. Verify Document Forge footer appears
+3. Add any missing elements before saving
+
+This branding is MANDATORY for compliance purposes.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;description&lt;/code&gt; field tells Claude when to apply the Skill. Be explicit?words like &quot;MANDATORY&quot; and &quot;MUST&quot; help ensure consistent application.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Field&lt;/th&gt;
+&lt;th&gt;Requirement&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;name&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Max 64 chars, lowercase letters, numbers, hyphens only&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;description&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Max 1024 chars, must be non-empty&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&quot;uploading-custom-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#uploading-custom-skills&quot; aria-label=&quot;uploading custom skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Uploading Custom Skills&lt;/h3&gt;
+&lt;p&gt;Upload Skills using the Anthropic API:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;curl -X POST &quot;https://api.anthropic.com/v1/skills&quot; \
+  -H &quot;x-api-key: $ANTHROPIC_API_KEY&quot; \
+  -H &quot;anthropic-version: 2023-06-01&quot; \
+  -H &quot;anthropic-beta: skills-2025-10-02&quot; \
+  -F &quot;display_title=Document Watermark&quot; \
+  -F &quot;files[]=@SKILL.md;filename=document-watermark/SKILL.md&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note the format: &lt;code&gt;files[]=&lt;/code&gt; with square brackets, and &lt;code&gt;filename&lt;/code&gt; must include a directory matching the &lt;code&gt;name&lt;/code&gt; field in your YAML frontmatter.&lt;/p&gt;
+&lt;p&gt;Response:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-json&quot;&gt;{
+  &quot;id&quot;: &quot;skill_01WatermarkXyz123&quot;,
+  &quot;display_title&quot;: &quot;Document Watermark&quot;,
+  &quot;source&quot;: &quot;custom&quot;,
+  &quot;latest_version&quot;: &quot;1765845644409101&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;id&lt;/code&gt; is what you use in Spring AI.&lt;/p&gt;
+&lt;h3 id=&quot;using-custom-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#using-custom-skills&quot; aria-label=&quot;using custom skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Using Custom Skills&lt;/h3&gt;
+&lt;p&gt;Reference Custom Skills by ID using the unified &lt;code&gt;skill()&lt;/code&gt; method:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;ChatResponse response = chatModel.call(
+    new Prompt(
+        &quot;Create a quarterly sales report with revenue, expenses, and profit by month&quot;,
+        AnthropicChatOptions.builder()
+            .model(&quot;claude-sonnet-4-5&quot;)
+            .skill(AnthropicSkill.XLSX)
+            .skill(&quot;skill_01WatermarkXyz123&quot;)
+            .maxTokens(8192)
+            .build()
+    )
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Claude combines both Skills?XLSX provides spreadsheet generation, the watermark skill adds your corporate branding.&lt;/p&gt;
+&lt;h3 id=&quot;version-pinning&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#version-pinning&quot; aria-label=&quot;version pinning permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Version Pinning&lt;/h3&gt;
+&lt;p&gt;For production deployments, pin Custom Skills to specific versions:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;AnthropicChatOptions.builder()
+    .model(&quot;claude-sonnet-4-5&quot;)
+    .skill(AnthropicSkill.XLSX)
+    .skill(&quot;skill_01WatermarkXyz123&quot;)                  // Latest version
+    .skill(&quot;skill_02LegalCompliance&quot;, &quot;1765845644409101&quot;)  // Pinned version
+    .maxTokens(8192)
+    .build()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Use pinned versions in production, &lt;code&gt;latest&lt;/code&gt; (the default) during development.&lt;/p&gt;
+&lt;h2 id=&quot;example-document-generation-service&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#example-document-generation-service&quot; aria-label=&quot;example document generation service permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Example: Document Generation Service&lt;/h2&gt;
+&lt;p&gt;Here&apos;s a complete service that combines pre-built and Custom Skills:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-java&quot;&gt;@Service
+public class DocumentGenerationService {
+
+    private final AnthropicChatModel chatModel;
+    private final AnthropicApi anthropicApi;
+
+    @Value(&quot;${app.custom-skill-id:}&quot;)
+    private String watermarkSkillId;
+
+    public DocumentGenerationService(AnthropicChatModel chatModel,
+                                      AnthropicApi anthropicApi) {
+        this.chatModel = chatModel;
+        this.anthropicApi = anthropicApi;
+    }
+
+    public byte[] generate(String prompt, AnthropicSkill documentType,
+                           boolean applyBranding) {
+
+        AnthropicChatOptions.Builder builder = AnthropicChatOptions.builder()
+            .model(&quot;claude-sonnet-4-5&quot;)
+            .skill(documentType)
+            .maxTokens(8192);
+
+        if (applyBranding &amp;#x26;&amp;#x26; StringUtils.hasText(watermarkSkillId)) {
+            builder.skill(watermarkSkillId);
+        }
+
+        ChatResponse response = chatModel.call(
+            new Prompt(prompt, builder.build())
+        );
+
+        List&amp;#x3C;String&gt; fileIds = AnthropicSkillsResponseHelper.extractFileIds(response);
+        if (fileIds.isEmpty()) {
+            throw new DocumentGenerationException(&quot;No file generated&quot;);
+        }
+
+        return anthropicApi.downloadFile(fileIds.get(0));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This pattern makes Custom Skills optional?the application works with pre-built Skills alone when no skill ID is configured.&lt;/p&gt;
+&lt;h2 id=&quot;tips-for-custom-skills&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#tips-for-custom-skills&quot; aria-label=&quot;tips for custom skills permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Tips for Custom Skills&lt;/h2&gt;
+&lt;p&gt;A few things we noticed building the watermark skill:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Emphatic language helped.&lt;/strong&gt; When we wanted Claude to consistently add the header and footer, phrases like &quot;MANDATORY&quot; and &quot;MUST&quot; made a difference. Your mileage may vary depending on what your skill does.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Format-specific instructions.&lt;/strong&gt; Since custom skills can be combined with any pre-built skill, we included separate instructions for Excel, PowerPoint, Word, and PDF.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Verification checklists.&lt;/strong&gt; Adding a section asking Claude to verify elements were present before completing the document caught cases where instructions might otherwise be missed.&lt;/p&gt;
+&lt;h2 id=&quot;getting-started&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#getting-started&quot; aria-label=&quot;getting started permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Getting Started&lt;/h2&gt;
+&lt;p&gt;Add the Spring AI Anthropic starter:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-xml&quot;&gt;&amp;#x3C;dependency&gt;
+    &amp;#x3C;groupId&gt;org.springframework.ai&amp;#x3C;/groupId&gt;
+    &amp;#x3C;artifactId&gt;spring-ai-starter-model-anthropic&amp;#x3C;/artifactId&gt;
+&amp;#x3C;/dependency&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Configure your API key:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-properties&quot;&gt;spring.ai.anthropic.api-key=${ANTHROPIC_API_KEY}
+spring.ai.anthropic.chat.options.model=claude-sonnet-4-5
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;quick-reference&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#quick-reference&quot; aria-label=&quot;quick reference permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Quick Reference&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Feature&lt;/th&gt;
+&lt;th&gt;Value&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Supported models&lt;/td&gt;
+&lt;td&gt;Claude Sonnet 4, Sonnet 4.5, Opus 4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Skills per request&lt;/td&gt;
+&lt;td&gt;Maximum 8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;File expiration&lt;/td&gt;
+&lt;td&gt;24 hours&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Recommended max-tokens&lt;/td&gt;
+&lt;td&gt;4096+ for complex documents&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Method&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.skill(AnthropicSkill)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Add pre-built Skill (XLSX, PPTX, DOCX, PDF)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.skill(String)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Add skill by ID or name (auto-detects pre-built vs custom)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.skill(String, String)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Add skill with pinned version&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.skills(String...)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Add multiple skills at once&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.skills(List&amp;#x3C;String&gt;)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Add multiple skills from a list&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&quot;sample-application&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#sample-application&quot; aria-label=&quot;sample application permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Sample Application&lt;/h2&gt;
+&lt;p&gt;We&apos;ve created a &lt;a href=&quot;https://github.com/spring-projects/spring-ai-examples/tree/main/misc/claude-skills-demo/document-forge&quot;&gt;sample application&lt;/a&gt; that lets you exercise all the Anthropic Skills features covered in this post.&lt;/p&gt;
+&lt;p&gt;The application provides a web interface where you can:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Select a document type&lt;/strong&gt; (Excel, PowerPoint, Word, or PDF) and enter a natural language prompt describing what you want&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Upload source files&lt;/strong&gt; to transform existing content ? for example, convert a text file into a formatted spreadsheet or turn meeting notes into a presentation&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Enable custom branding&lt;/strong&gt; to see how Custom Skills add headers, footers, and watermarks to generated documents&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Download the results&lt;/strong&gt; directly through the Files API integration&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Under the hood, the application demonstrates the key patterns from this post: configuring Skills via &lt;code&gt;AnthropicChatOptions&lt;/code&gt;, extracting file IDs with &lt;code&gt;AnthropicSkillsResponseHelper&lt;/code&gt;, and downloading generated files through &lt;code&gt;AnthropicApi&lt;/code&gt;. It also shows async generation for longer-running requests like presentations.&lt;/p&gt;
+&lt;h2 id=&quot;related-generic-agent-skills-in-spring-ai&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#related-generic-agent-skills-in-spring-ai&quot; aria-label=&quot;related generic agent skills in spring ai permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Related: Generic Agent Skills in Spring AI&lt;/h2&gt;
+&lt;p&gt;This post covers Anthropic&apos;s document generation Skills?a provider-specific feature that produces real files (Excel, PowerPoint, Word, PDF). However, Spring AI also provides &lt;strong&gt;generic Agent Skills&lt;/strong&gt; that work across any LLM provider.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills/&quot;&gt;Spring AI Agentic Patterns&lt;/a&gt; blog series covers these portable patterns:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills/&quot;&gt;Agent Skills&lt;/a&gt;&lt;/strong&gt;: Modular folders of instructions and resources that run locally in your environment?define once, use with OpenAI, Anthropic, Gemini, or any supported model&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/16/spring-ai-ask-user-question-tool/&quot;&gt;AskUserQuestionTool&lt;/a&gt;&lt;/strong&gt;: Enables agents to ask clarifying questions during execution, gathering requirements interactively before acting&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/20/spring-ai-agentic-patterns-3-todowrite/&quot;&gt;TodoWriteTool&lt;/a&gt;&lt;/strong&gt;: Transparent, trackable task management for multi-step agent workflows&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://spring.io/blog/2026/01/27/spring-ai-agentic-patterns-4-task-subagents/&quot;&gt;Task Subagents&lt;/a&gt;&lt;/strong&gt;: Spawn specialized subagents for complex, multi-step tasks&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These generic patterns live in the &lt;a href=&quot;https://github.com/spring-ai-community/spring-ai-agent-utils&quot;&gt;spring-ai-agent-utils&lt;/a&gt; library and complement the Anthropic-specific Skills covered here. Use Anthropic Skills when you need actual document file generation; use generic Agent Skills when you need portable, LLM-agnostic agent capabilities.&lt;/p&gt;
+&lt;h2 id=&quot;conclusion&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#conclusion&quot; aria-label=&quot;conclusion permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Spring AI provides a streamlined integration with Anthropic&apos;s Agent Skills API. The unified &lt;code&gt;skill()&lt;/code&gt; method works for both pre-built and custom skills, and handles all the complexity of code execution tools, beta headers, and file extraction automatically.&lt;/p&gt;
+&lt;p&gt;For complete API documentation, see the &lt;a href=&quot;https://docs.spring.io/spring-ai/reference/api/chat/anthropic-chat.html#_skills&quot;&gt;Spring AI Anthropic Chat reference&lt;/a&gt;. For Custom Skill authoring guidance, see Anthropic&apos;s &lt;a href=&quot;https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview&quot;&gt;Skills documentation&lt;/a&gt; and &lt;a href=&quot;https://github.com/anthropics/claude-cookbooks/tree/main/skills&quot;&gt;Skills Cookbook&lt;/a&gt;.&lt;/p&gt;</content:encoded></item></channel></rss>
